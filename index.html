@@ -258,8 +258,20 @@
 var _equipment = [];
 var _projects  = [];
 var _logs      = [];
-var _eqTypes   = [];
-var _staff     = [];
+var _eqTypes   = [
+  {id:'d-bat',      name:'Bat Detector'},
+  {id:'d-camera',   name:'Camera'},
+  {id:'d-datalog',  name:'Data Logger'},
+  {id:'d-gps',      name:'GPS Unit'},
+  {id:'d-trap',     name:'Trap'},
+  {id:'d-recorder', name:'Audio Recorder'},
+];
+var _staff     = [
+  {id:'d-anne',     name:'Anne Carey'},
+  {id:'d-meredith', name:'Meredith Brainwood'},
+  {id:'d-caroline', name:'Caroline'},
+  {id:'d-eloise',   name:'Eloise'},
+];
 
 // Firebase operation stubs -- replaced by real functions once module loads
 var _fbAddDoc     = function(){ alert('Still connecting to database...'); };
@@ -587,6 +599,11 @@ function generateReport() {
 
 // Set default date
 document.getElementById('log-date-out').value = new Date().toISOString().slice(0,10);
+// Render defaults immediately (Firebase will override when it connects)
+refreshTypeDropdown();
+refreshStaffDropdown();
+renderTypesChips();
+renderStaffChips();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
