@@ -187,7 +187,10 @@
       <div class="table-wrap" id="active-loans"><div class="loading">Loading...</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Deployment history</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+        <div class="card-title" style="margin-bottom:0">Deployment history</div>
+        <button class="btn sm" id="sort-toggle" onclick="toggleLogSort()">Newest first</button>
+      </div>
       <div class="table-wrap" id="all-logs"><div class="loading">Loading...</div></div>
     </div>
   </section>
@@ -287,6 +290,9 @@ var _staff = [
   {id:'d-caroline', name:'Caroline'},
   {id:'d-eloise',   name:'Eloise'}
 ];
+
+// Sort state: false = newest first (default), true = oldest first
+var _logsNewestFirst = true;
 
 // Firebase stubs - replaced by module once connected
 var _fbAddDoc    = function(){ alert('Still connecting to database...'); };
@@ -591,6 +597,18 @@ function logOut() {
   });
 }
 
+function toggleLogSort() {
+  _logsNewestFirst = !_logsNewestFirst;
+  var btn = document.getElementById('sort-toggle');
+  if (btn) btn.textContent = _logsNewestFirst ? 'Newest first' : 'Oldest first';
+  renderLogs();
+}
+
+function deleteLog(id) {
+  if (!confirm('Delete this deployment record? This cannot be undone.')) return;
+  _fbDeleteDoc('logs', id);
+}
+
 function logIn(logId) {
   var dateIn = prompt('Date returned from field (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
   if (!dateIn) return;
@@ -599,7 +617,7 @@ function logIn(logId) {
 
 function renderLogs() {
   var active = _logs.filter(function(l){ return !l.dateIn; });
-  var all    = _logs.slice().reverse();
+  var all    = _logsNewestFirst ? _logs.slice().reverse() : _logs.slice();
 
   var aEl = document.getElementById('active-loans');
   if (aEl) {
@@ -644,10 +662,11 @@ function renderLogs() {
           '<td>' + (l.dateIn
             ? '<span class="badge in">Returned</span>'
             : '<span class="badge out">In field</span>') + '</td>' +
+          '<td><button class="btn sm danger" onclick="deleteLog(\'' + l.id + '\')">Delete</button></td>' +
           '</tr>';
       }).join('');
       allEl.innerHTML = '<table><thead><tr>' +
-        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Date returned</th><th>Location</th><th>Status</th>' +
+        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Date returned</th><th>Location</th><th>Status</th><th></th>' +
         '</tr></thead><tbody>' + allRows + '</tbody></table>';
     }
   }
