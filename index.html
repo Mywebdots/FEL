@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Field Equipment Log — Applied Ecology</title>
+<title>Field Equipment Log - Applied Ecology</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -88,7 +88,7 @@
 
   .list-items{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
   .list-chip{display:inline-flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid var(--green-lt);border-radius:20px;padding:4px 12px;font-size:13px;color:var(--green)}
-  .list-chip button{background:none;border:none;cursor:pointer;color:var(--green);font-size:16px;line-height:1;padding:0;opacity:0.5}
+  .list-chip button{background:none;border:none;cursor:pointer;color:var(--green);font-size:15px;line-height:1;padding:0;opacity:0.6}
   .list-chip button:hover{opacity:1}
   .list-divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
@@ -113,15 +113,15 @@
       <div class="app-sub">Applied Ecology</div>
     </div>
   </div>
-  <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting…</span></div>
+  <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting...</span></div>
 </header>
 
 <nav class="tabs">
-  <button class="tab active" id="tbtn-equipment" onclick="showTab('equipment')">⬡ Equipment</button>
-  <button class="tab" id="tbtn-log"       onclick="showTab('log')">↕ Log</button>
-  <button class="tab" id="tbtn-projects"  onclick="showTab('projects')">◫ Projects</button>
-  <button class="tab" id="tbtn-reports"   onclick="showTab('reports')">◈ Reports</button>
-  <button class="tab" id="tbtn-lists"     onclick="showTab('lists')">☰ Lists</button>
+  <button class="tab active" id="tbtn-equipment" onclick="showTab('equipment')">Equipment</button>
+  <button class="tab" id="tbtn-log"       onclick="showTab('log')">Log</button>
+  <button class="tab" id="tbtn-projects"  onclick="showTab('projects')">Projects</button>
+  <button class="tab" id="tbtn-reports"   onclick="showTab('reports')">Reports</button>
+  <button class="tab" id="tbtn-lists"     onclick="showTab('lists')">Lists</button>
 </nav>
 
 <main class="main">
@@ -135,7 +135,7 @@
           <label>Equipment type</label>
           <select id="eq-type" onchange="handleTypeChange()"></select>
           <div class="add-new-wrap" id="eq-type-new-wrap">
-            <input id="eq-type-new" placeholder="New equipment type…"/>
+            <input id="eq-type-new" placeholder="New equipment type..."/>
             <button class="btn xs primary" onclick="saveNewType()">Add</button>
             <button class="btn xs" onclick="cancelNewType()">Cancel</button>
           </div>
@@ -150,7 +150,7 @@
     </div>
     <div class="card">
       <div class="card-title">Equipment register</div>
-      <div class="table-wrap" id="eq-list"><div class="loading">Loading…</div></div>
+      <div class="table-wrap" id="eq-list"><div class="loading">Loading...</div></div>
     </div>
   </section>
 
@@ -167,7 +167,7 @@
           <label>Assigned to</label>
           <select id="log-person" onchange="handleStaffChange()"></select>
           <div class="add-new-wrap" id="log-person-new-wrap">
-            <input id="log-person-new" placeholder="New staff name…"/>
+            <input id="log-person-new" placeholder="New staff name..."/>
             <button class="btn xs primary" onclick="saveNewStaff()">Add</button>
             <button class="btn xs" onclick="cancelNewStaff()">Cancel</button>
           </div>
@@ -178,11 +178,11 @@
     </div>
     <div class="card">
       <div class="card-title">Active loans</div>
-      <div class="table-wrap" id="active-loans"><div class="loading">Loading…</div></div>
+      <div class="table-wrap" id="active-loans"><div class="loading">Loading...</div></div>
     </div>
     <div class="card">
       <div class="card-title">Full history</div>
-      <div class="table-wrap" id="all-logs"><div class="loading">Loading…</div></div>
+      <div class="table-wrap" id="all-logs"><div class="loading">Loading...</div></div>
     </div>
   </section>
 
@@ -191,7 +191,7 @@
     <div class="card">
       <div class="card-title">Add project</div>
       <div class="form-grid">
-        <div class="field"><label>Project name</label><input id="proj-name" placeholder="e.g. Koala Survey — Western Sydney"/></div>
+        <div class="field"><label>Project name</label><input id="proj-name" placeholder="e.g. Koala Survey - Western Sydney"/></div>
         <div class="field"><label>Project owner</label><input id="proj-owner" placeholder="Name"/></div>
       </div>
       <div class="form-grid full">
@@ -201,7 +201,7 @@
     </div>
     <div class="card">
       <div class="card-title">Projects</div>
-      <div class="table-wrap" id="proj-list"><div class="loading">Loading…</div></div>
+      <div class="table-wrap" id="proj-list"><div class="loading">Loading...</div></div>
     </div>
   </section>
 
@@ -213,7 +213,7 @@
         <div class="field">
           <label>Select project</label>
           <select id="report-proj" onchange="generateReport()">
-            <option value="">— select a project —</option>
+            <option value="">-- select a project --</option>
           </select>
         </div>
       </div>
@@ -228,9 +228,9 @@
       <p style="font-size:13px;color:var(--ink-mid);margin-bottom:1.5rem">These lists power the dropdowns across the app. Changes are saved instantly for everyone.</p>
 
       <div style="font-size:13px;font-weight:500;margin-bottom:4px">Equipment types</div>
-      <div class="list-items" id="types-chips"><div class="loading">Loading…</div></div>
+      <div class="list-items" id="types-chips"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <input id="new-type-input" placeholder="Add equipment type…" style="max-width:260px"
+        <input id="new-type-input" placeholder="Add equipment type..." style="max-width:260px"
           onkeydown="if(event.key==='Enter')addToList('equipmentTypes','new-type-input')"/>
         <button class="btn sm primary" onclick="addToList('equipmentTypes','new-type-input')">Add</button>
       </div>
@@ -238,9 +238,9 @@
       <hr class="list-divider"/>
 
       <div style="font-size:13px;font-weight:500;margin-bottom:4px">Field staff</div>
-      <div class="list-items" id="staff-chips"><div class="loading">Loading…</div></div>
+      <div class="list-items" id="staff-chips"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <input id="new-staff-input" placeholder="Add staff name…" style="max-width:260px"
+        <input id="new-staff-input" placeholder="Add staff name..." style="max-width:260px"
           onkeydown="if(event.key==='Enter')addToList('fieldStaff','new-staff-input')"/>
         <button class="btn sm primary" onclick="addToList('fieldStaff','new-staff-input')">Add</button>
       </div>
@@ -249,36 +249,37 @@
 
 </main>
 
-<!-- ═══════════════════════════════════════════════════════════
-     PLAIN SCRIPT: all UI functions defined here BEFORE Firebase
-     so they work even if Firebase hasn't loaded yet
-     ═══════════════════════════════════════════════════════════ -->
 <script>
-// -- Shared state (populated by Firebase module below) ------------------------
+// ================================================================
+// PLAIN SCRIPT - UI functions (100% ASCII - no Unicode characters)
+// ================================================================
+
+// State - defaults shown immediately, Firebase overwrites on connect
 var _equipment = [];
 var _projects  = [];
 var _logs      = [];
-var _eqTypes   = [
+var _eqTypes = [
   {id:'d-bat',      name:'Bat Detector'},
-  {id:'d-camera',   name:'Camera'},
+  {id:'d-camera',   name:'Camera Trap'},
   {id:'d-datalog',  name:'Data Logger'},
   {id:'d-gps',      name:'GPS Unit'},
-  {id:'d-trap',     name:'Trap'},
   {id:'d-recorder', name:'Audio Recorder'},
+  {id:'d-trap',     name:'Trap'},
+  {id:'d-mist',     name:'Mist Net'}
 ];
-var _staff     = [
+var _staff = [
   {id:'d-anne',     name:'Anne Carey'},
   {id:'d-meredith', name:'Meredith Brainwood'},
   {id:'d-caroline', name:'Caroline'},
-  {id:'d-eloise',   name:'Eloise'},
+  {id:'d-eloise',   name:'Eloise'}
 ];
 
-// Firebase operation stubs -- replaced by real functions once module loads
-var _fbAddDoc     = function(){ alert('Still connecting to database...'); };
-var _fbDeleteDoc  = function(){ alert('Still connecting to database...'); };
-var _fbUpdateDoc  = function(){ alert('Still connecting to database...'); };
+// Firebase stubs - replaced by module once connected
+var _fbAddDoc    = function(){ alert('Still connecting to database...'); };
+var _fbDeleteDoc = function(){ alert('Still connecting to database...'); };
+var _fbUpdateDoc = function(){ alert('Still connecting to database...'); };
 
-// -- TAB SWITCHING -------------------------------------------------------------
+// --- Tab switching ---
 function showTab(t) {
   document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
@@ -286,14 +287,14 @@ function showTab(t) {
   document.getElementById('tbtn-' + t).classList.add('active');
 }
 
-// -- TYPE DROPDOWN -------------------------------------------------------------
+// --- Equipment type dropdown ---
 function refreshTypeDropdown() {
   var sel = document.getElementById('eq-type');
   if (!sel) return;
   var prev = sel.value;
   sel.innerHTML =
     '<option value="">-- select type --</option>' +
-    _eqTypes.map(function(t){ return '<option value="'+t.name+'">'+t.name+'</option>'; }).join('') +
+    _eqTypes.map(function(t){ return '<option value="' + t.name + '">' + t.name + '</option>'; }).join('') +
     '<option value="__new__">+ Add new type...</option>';
   if (prev && prev !== '__new__') sel.value = prev;
 }
@@ -318,20 +319,20 @@ function saveNewType() {
   var input = document.getElementById('eq-type-new');
   var val = input.value.trim();
   if (!val) return;
-  _fbAddDoc('equipmentTypes', { name: val }, function() {
+  _fbAddDoc('equipmentTypes', {name: val}, function() {
     input.value = '';
     document.getElementById('eq-type-new-wrap').classList.remove('visible');
   });
 }
 
-// -- STAFF DROPDOWN ------------------------------------------------------------
+// --- Staff dropdown ---
 function refreshStaffDropdown() {
   var sel = document.getElementById('log-person');
   if (!sel) return;
   var prev = sel.value;
   sel.innerHTML =
     '<option value="">-- select staff --</option>' +
-    _staff.map(function(s){ return '<option value="'+s.name+'">'+s.name+'</option>'; }).join('') +
+    _staff.map(function(s){ return '<option value="' + s.name + '">' + s.name + '</option>'; }).join('') +
     '<option value="__new__">+ Add new person...</option>';
   if (prev && prev !== '__new__') sel.value = prev;
 }
@@ -356,18 +357,18 @@ function saveNewStaff() {
   var input = document.getElementById('log-person-new');
   var val = input.value.trim();
   if (!val) return;
-  _fbAddDoc('fieldStaff', { name: val }, function() {
+  _fbAddDoc('fieldStaff', {name: val}, function() {
     input.value = '';
     document.getElementById('log-person-new-wrap').classList.remove('visible');
   });
 }
 
-// -- LISTS TAB -----------------------------------------------------------------
+// --- Lists tab ---
 function addToList(collName, inputId) {
   var input = document.getElementById(inputId);
   var val = input.value.trim();
   if (!val) return;
-  _fbAddDoc(collName, { name: val }, function() { input.value = ''; });
+  _fbAddDoc(collName, {name: val}, function() { input.value = ''; });
 }
 
 function deleteListItem(collName, id) {
@@ -378,35 +379,43 @@ function deleteListItem(collName, id) {
 function renderTypesChips() {
   var el = document.getElementById('types-chips');
   if (!el) return;
-  el.innerHTML = _eqTypes.length
-    ? _eqTypes.map(function(t){
-        return '<span class="list-chip">'+t.name+' <button onclick="deleteListItem(\'equipmentTypes\',\''+t.id+'\')" title="Remove">\xd7</button></span>';
-      }).join('')
-    : '<span style="font-size:13px;color:var(--ink-lt)">None yet.</span>';
+  if (!_eqTypes.length) {
+    el.innerHTML = '<span style="font-size:13px;color:var(--ink-lt)">None yet.</span>';
+    return;
+  }
+  el.innerHTML = _eqTypes.map(function(t) {
+    return '<span class="list-chip">' + t.name +
+      ' <button onclick="deleteListItem(\'equipmentTypes\',\'' + t.id + '\')" title="Remove">&times;</button></span>';
+  }).join('');
 }
 
 function renderStaffChips() {
   var el = document.getElementById('staff-chips');
   if (!el) return;
-  el.innerHTML = _staff.length
-    ? _staff.map(function(s){
-        return '<span class="list-chip">'+s.name+' <button onclick="deleteListItem(\'fieldStaff\',\''+s.id+'\')" title="Remove">\xd7</button></span>';
-      }).join('')
-    : '<span style="font-size:13px;color:var(--ink-lt)">None yet.</span>';
+  if (!_staff.length) {
+    el.innerHTML = '<span style="font-size:13px;color:var(--ink-lt)">None yet.</span>';
+    return;
+  }
+  el.innerHTML = _staff.map(function(s) {
+    return '<span class="list-chip">' + s.name +
+      ' <button onclick="deleteListItem(\'fieldStaff\',\'' + s.id + '\')" title="Remove">&times;</button></span>';
+  }).join('');
 }
 
-// -- EQUIPMENT -----------------------------------------------------------------
+// --- Equipment ---
 function addEquipment() {
   var type = document.getElementById('eq-type').value;
   var name = document.getElementById('eq-name').value.trim();
   if (!type || type === '__new__') { alert('Please select an equipment type.'); return; }
   _fbAddDoc('equipment', {
-    type: type,
-    name: name,
+    type:   type,
+    name:   name,
     serial: document.getElementById('eq-serial').value.trim(),
     notes:  document.getElementById('eq-notes').value.trim()
   }, function() {
-    ['eq-name','eq-serial','eq-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('eq-name').value   = '';
+    document.getElementById('eq-serial').value = '';
+    document.getElementById('eq-notes').value  = '';
     document.getElementById('eq-type').selectedIndex = 0;
   });
 }
@@ -419,30 +428,41 @@ function deleteEquipment(id) {
 function renderEquipment() {
   var el = document.getElementById('eq-list');
   if (!el) return;
-  if (!_equipment.length) { el.innerHTML='<div class="empty">No equipment added yet.</div>'; return; }
-  el.innerHTML = '<table><thead><tr><th>Type</th><th>Name / model</th><th>Serial</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>' +
-    _equipment.map(function(e) {
-      var active = _logs.find(function(l){ return l.eqId===e.id && !l.dateIn; });
-      var badge  = active
-        ? '<span class="badge out">Out -- '+active.person+'</span>'
-        : '<span class="badge in">Available</span>';
-      return '<tr><td>'+(e.type||'--')+'</td><td style="font-weight:500">'+(e.name||'--')+'</td>' +
-        '<td style="font-family:var(--mono);font-size:12px;color:var(--ink-mid)">'+(e.serial||'--')+'</td>' +
-        '<td style="color:var(--ink-mid)">'+(e.notes||'--')+'</td><td>'+badge+'</td>' +
-        '<td><button class="btn sm danger" onclick="deleteEquipment(\''+e.id+'\')">Remove</button></td></tr>';
-    }).join('') + '</tbody></table>';
+  if (!_equipment.length) {
+    el.innerHTML = '<div class="empty">No equipment added yet.</div>';
+    return;
+  }
+  var rows = _equipment.map(function(e) {
+    var active = _logs.find(function(l){ return l.eqId === e.id && !l.dateIn; });
+    var badge  = active
+      ? '<span class="badge out">Out - ' + active.person + '</span>'
+      : '<span class="badge in">Available</span>';
+    return '<tr>' +
+      '<td>' + (e.type || '--') + '</td>' +
+      '<td style="font-weight:500">' + (e.name || '--') + '</td>' +
+      '<td style="font-family:var(--mono);font-size:12px;color:var(--ink-mid)">' + (e.serial || '--') + '</td>' +
+      '<td style="color:var(--ink-mid)">' + (e.notes || '--') + '</td>' +
+      '<td>' + badge + '</td>' +
+      '<td><button class="btn sm danger" onclick="deleteEquipment(\'' + e.id + '\')">Remove</button></td>' +
+      '</tr>';
+  }).join('');
+  el.innerHTML = '<table><thead><tr>' +
+    '<th>Type</th><th>Name / model</th><th>Serial</th><th>Notes</th><th>Status</th><th></th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-// -- PROJECTS ------------------------------------------------------------------
+// --- Projects ---
 function addProject() {
   var name = document.getElementById('proj-name').value.trim();
   if (!name) { alert('Please enter a project name.'); return; }
   _fbAddDoc('projects', {
-    name: name,
+    name:  name,
     owner: document.getElementById('proj-owner').value.trim(),
     desc:  document.getElementById('proj-desc').value.trim()
   }, function() {
-    ['proj-name','proj-owner','proj-desc'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('proj-name').value  = '';
+    document.getElementById('proj-owner').value = '';
+    document.getElementById('proj-desc').value  = '';
   });
 }
 
@@ -454,22 +474,31 @@ function deleteProject(id) {
 function renderProjects() {
   var el = document.getElementById('proj-list');
   if (!el) return;
-  if (!_projects.length) { el.innerHTML='<div class="empty">No projects added yet.</div>'; return; }
-  el.innerHTML = '<table><thead><tr><th>Project</th><th>Owner</th><th>Description</th><th></th></tr></thead><tbody>' +
-    _projects.map(function(p){
-      return '<tr><td style="font-weight:500">'+p.name+'</td><td>'+(p.owner||'--')+'</td>' +
-        '<td style="color:var(--ink-mid)">'+(p.desc||'--')+'</td>' +
-        '<td><button class="btn sm danger" onclick="deleteProject(\''+p.id+'\')">Remove</button></td></tr>';
-    }).join('') + '</tbody></table>';
+  if (!_projects.length) {
+    el.innerHTML = '<div class="empty">No projects added yet.</div>';
+    return;
+  }
+  var rows = _projects.map(function(p) {
+    return '<tr>' +
+      '<td style="font-weight:500">' + p.name + '</td>' +
+      '<td>' + (p.owner || '--') + '</td>' +
+      '<td style="color:var(--ink-mid)">' + (p.desc || '--') + '</td>' +
+      '<td><button class="btn sm danger" onclick="deleteProject(\'' + p.id + '\')">Remove</button></td>' +
+      '</tr>';
+  }).join('');
+  el.innerHTML = '<table><thead><tr>' +
+    '<th>Project</th><th>Owner</th><th>Description</th><th></th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-// -- LOG SELECTS ---------------------------------------------------------------
+// --- Log selects ---
 function refreshLogEquipSelect() {
   var sel = document.getElementById('log-eq');
   if (!sel) return;
   sel.innerHTML = _equipment.length
-    ? _equipment.map(function(e){
-        return '<option value="'+e.id+'">'+(e.type?e.type+' -- ':'')+( e.name||e.serial||e.id)+'</option>';
+    ? _equipment.map(function(e) {
+        var label = (e.type ? e.type + ' - ' : '') + (e.name || e.serial || e.id);
+        return '<option value="' + e.id + '">' + label + '</option>';
       }).join('')
     : '<option value="">No equipment added yet</option>';
 }
@@ -478,7 +507,9 @@ function refreshLogProjSelect() {
   var sel = document.getElementById('log-proj');
   if (!sel) return;
   sel.innerHTML = _projects.length
-    ? _projects.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join('')
+    ? _projects.map(function(p) {
+        return '<option value="' + p.id + '">' + p.name + '</option>';
+      }).join('')
     : '<option value="">No projects added yet</option>';
 }
 
@@ -487,34 +518,35 @@ function refreshReportSelect() {
   if (!sel) return;
   var cur = sel.value;
   sel.innerHTML = '<option value="">-- select a project --</option>' +
-    _projects.map(function(p){
-      return '<option value="'+p.id+'"'+(p.id===cur?' selected':'')+'>'+p.name+'</option>';
+    _projects.map(function(p) {
+      return '<option value="' + p.id + '"' + (p.id === cur ? ' selected' : '') + '>' + p.name + '</option>';
     }).join('');
 }
 
-// -- LOGS ----------------------------------------------------------------------
+// --- Log out / in ---
 function logOut() {
-  var eqId   = document.getElementById('log-eq').value;
-  var projId = document.getElementById('log-proj').value;
-  var person = document.getElementById('log-person').value;
-  var dateOut= document.getElementById('log-date-out').value;
+  var eqId    = document.getElementById('log-eq').value;
+  var projId  = document.getElementById('log-proj').value;
+  var person  = document.getElementById('log-person').value;
+  var dateOut = document.getElementById('log-date-out').value;
   if (!eqId)                          { alert('Please select equipment.'); return; }
-  if (!projId)                         { alert('Please select a project.'); return; }
-  if (!person || person==='__new__')  { alert('Please select a staff member.'); return; }
-  if (!dateOut)                        { alert('Please enter the date out.'); return; }
-  if (_logs.find(function(l){ return l.eqId===eqId && !l.dateIn; })) {
-    alert('This equipment is already logged out. Log it back in first.'); return;
-  }
-  _fbAddDoc('logs', { eqId:eqId, projId:projId, person:person, dateOut:dateOut, dateIn:null }, function() {
-    document.getElementById('log-date-out').value = new Date().toISOString().slice(0,10);
+  if (!projId)                        { alert('Please select a project.'); return; }
+  if (!person || person === '__new__') { alert('Please select a staff member.'); return; }
+  if (!dateOut)                       { alert('Please enter the date out.'); return; }
+  var already = _logs.find(function(l){ return l.eqId === eqId && !l.dateIn; });
+  if (already) { alert('This equipment is already logged out. Log it back in first.'); return; }
+  _fbAddDoc('logs', {
+    eqId: eqId, projId: projId, person: person, dateOut: dateOut, dateIn: null
+  }, function() {
+    document.getElementById('log-date-out').value = new Date().toISOString().slice(0, 10);
     document.getElementById('log-person').selectedIndex = 0;
   });
 }
 
 function logIn(logId) {
-  var dateIn = prompt('Date returned (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
+  var dateIn = prompt('Date returned (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
   if (!dateIn) return;
-  _fbUpdateDoc('logs', logId, { dateIn: dateIn });
+  _fbUpdateDoc('logs', logId, {dateIn: dateIn});
 }
 
 function renderLogs() {
@@ -523,95 +555,125 @@ function renderLogs() {
 
   var aEl = document.getElementById('active-loans');
   if (aEl) {
-    if (!active.length) { aEl.innerHTML='<div class="empty">No equipment currently out.</div>'; }
-    else {
-      aEl.innerHTML = '<table><thead><tr><th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th></th></tr></thead><tbody>' +
-        active.map(function(l){
-          var eq=_equipment.find(function(e){return e.id===l.eqId;});
-          var pr=_projects.find(function(p){return p.id===l.projId;});
-          return '<tr><td style="font-weight:500">'+(eq?(eq.type?eq.type+' -- ':'')+eq.name:'Unknown')+'</td>' +
-            '<td>'+(pr?pr.name:'Unknown')+'</td><td>'+l.person+'</td>' +
-            '<td style="font-family:var(--mono);font-size:12px">'+l.dateOut+'</td>' +
-            '<td><button class="btn sm primary" onclick="logIn(\''+l.id+'\')">Log in</button></td></tr>';
-        }).join('') + '</tbody></table>';
+    if (!active.length) {
+      aEl.innerHTML = '<div class="empty">No equipment currently out.</div>';
+    } else {
+      var aRows = active.map(function(l) {
+        var eq = _equipment.find(function(e){ return e.id === l.eqId; });
+        var pr = _projects.find(function(p){ return p.id === l.projId; });
+        var eqLabel = eq ? (eq.type ? eq.type + ' - ' : '') + eq.name : 'Unknown';
+        return '<tr>' +
+          '<td style="font-weight:500">' + eqLabel + '</td>' +
+          '<td>' + (pr ? pr.name : 'Unknown') + '</td>' +
+          '<td>' + l.person + '</td>' +
+          '<td style="font-family:var(--mono);font-size:12px">' + l.dateOut + '</td>' +
+          '<td><button class="btn sm primary" onclick="logIn(\'' + l.id + '\')">Log in</button></td>' +
+          '</tr>';
+      }).join('');
+      aEl.innerHTML = '<table><thead><tr>' +
+        '<th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th></th>' +
+        '</tr></thead><tbody>' + aRows + '</tbody></table>';
     }
   }
 
   var allEl = document.getElementById('all-logs');
   if (allEl) {
-    if (!all.length) { allEl.innerHTML='<div class="empty">No log entries yet.</div>'; }
-    else {
-      allEl.innerHTML = '<table><thead><tr><th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th>Date in</th><th>Status</th></tr></thead><tbody>' +
-        all.map(function(l){
-          var eq=_equipment.find(function(e){return e.id===l.eqId;});
-          var pr=_projects.find(function(p){return p.id===l.projId;});
-          return '<tr><td style="font-weight:500">'+(eq?(eq.type?eq.type+' -- ':'')+eq.name:'Unknown')+'</td>' +
-            '<td>'+(pr?pr.name:'Unknown')+'</td><td>'+l.person+'</td>' +
-            '<td style="font-family:var(--mono);font-size:12px">'+l.dateOut+'</td>' +
-            '<td style="font-family:var(--mono);font-size:12px">'+(l.dateIn||'--')+'</td>' +
-            '<td>'+(l.dateIn?'<span class="badge in">Returned</span>':'<span class="badge out">Out</span>')+'</td></tr>';
-        }).join('') + '</tbody></table>';
+    if (!all.length) {
+      allEl.innerHTML = '<div class="empty">No log entries yet.</div>';
+    } else {
+      var allRows = all.map(function(l) {
+        var eq = _equipment.find(function(e){ return e.id === l.eqId; });
+        var pr = _projects.find(function(p){ return p.id === l.projId; });
+        var eqLabel = eq ? (eq.type ? eq.type + ' - ' : '') + eq.name : 'Unknown';
+        return '<tr>' +
+          '<td style="font-weight:500">' + eqLabel + '</td>' +
+          '<td>' + (pr ? pr.name : 'Unknown') + '</td>' +
+          '<td>' + l.person + '</td>' +
+          '<td style="font-family:var(--mono);font-size:12px">' + l.dateOut + '</td>' +
+          '<td style="font-family:var(--mono);font-size:12px">' + (l.dateIn || '--') + '</td>' +
+          '<td>' + (l.dateIn
+            ? '<span class="badge in">Returned</span>'
+            : '<span class="badge out">Out</span>') + '</td>' +
+          '</tr>';
+      }).join('');
+      allEl.innerHTML = '<table><thead><tr>' +
+        '<th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th>Date in</th><th>Status</th>' +
+        '</tr></thead><tbody>' + allRows + '</tbody></table>';
     }
   }
 }
 
-// -- REPORTS -------------------------------------------------------------------
+// --- Reports ---
 function generateReport() {
   var projId = document.getElementById('report-proj').value;
   var out    = document.getElementById('report-output');
-  if (!projId) { out.innerHTML=''; return; }
-  var proj     = _projects.find(function(p){return p.id===projId;});
-  var projLogs = _logs.filter(function(l){return l.projId===projId;});
-  if (!projLogs.length) { out.innerHTML='<div class="card"><div class="empty">No equipment logged for this project yet.</div></div>'; return; }
+  if (!projId) { out.innerHTML = ''; return; }
+  var proj     = _projects.find(function(p){ return p.id === projId; });
+  var projLogs = _logs.filter(function(l){ return l.projId === projId; });
+  if (!projLogs.length) {
+    out.innerHTML = '<div class="card"><div class="empty">No equipment logged for this project yet.</div></div>';
+    return;
+  }
   var eqMap = {};
-  projLogs.forEach(function(l){ if(!eqMap[l.eqId]) eqMap[l.eqId]=[]; eqMap[l.eqId].push(l); });
+  projLogs.forEach(function(l) {
+    if (!eqMap[l.eqId]) eqMap[l.eqId] = [];
+    eqMap[l.eqId].push(l);
+  });
   var totalItems = Object.keys(eqMap).length;
-  var outNow     = projLogs.filter(function(l){return !l.dateIn;}).length;
+  var outNow     = projLogs.filter(function(l){ return !l.dateIn; }).length;
+  var detail = Object.keys(eqMap).map(function(eqId) {
+    var ls      = eqMap[eqId];
+    var eq      = _equipment.find(function(e){ return e.id === eqId; });
+    var label   = eq
+      ? (eq.type ? eq.type + ' - ' : '') + eq.name + (eq.serial ? ' (' + eq.serial + ')' : '')
+      : 'Unknown item';
+    var current = ls.find(function(l){ return !l.dateIn; });
+    var entries = ls.map(function(l) {
+      return '<div class="usage-entry">' +
+        l.person + '  out: ' + l.dateOut + '  in: ' + (l.dateIn || 'not yet returned') +
+        '</div>';
+    }).join('');
+    return '<div class="usage-item">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
+        '<span class="usage-name">' + label + '</span>' +
+        '<span class="badge ' + (current ? 'out' : 'in') + '">' +
+          (current ? 'Out with ' + current.person : 'Available') +
+        '</span>' +
+      '</div>' +
+      '<div class="usage-meta">Used ' + ls.length + ' time' + (ls.length !== 1 ? 's' : '') + '</div>' +
+      '<div class="usage-entries">' + entries + '</div>' +
+      '</div>';
+  }).join('');
   out.innerHTML =
-    '<div class="card"><div style="margin-bottom:1.25rem">' +
-      '<div style="font-size:18px;font-weight:500">'+proj.name+'</div>' +
-      '<div style="font-size:13px;color:var(--ink-mid);margin-top:4px">Owner: <strong>'+(proj.owner||'--')+'</strong>'+(proj.desc?' &nbsp;.&nbsp; '+proj.desc:'')+'</div>' +
-    '</div>' +
-    '<div class="stat-row">' +
-      '<div class="stat-card"><div class="stat-label">Equipment items</div><div class="stat-val">'+totalItems+'</div></div>' +
-      '<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val">'+projLogs.length+'</div></div>' +
-      '<div class="stat-card"><div class="stat-label">Currently out</div><div class="stat-val">'+outNow+'</div></div>' +
-    '</div></div>' +
-    '<div class="card"><div class="card-title">Equipment detail</div>' +
-    Object.entries(eqMap).map(function(entry){
-      var eqId=entry[0], ls=entry[1];
-      var eq=_equipment.find(function(e){return e.id===eqId;});
-      var label=eq?(eq.type?eq.type+' -- ':'')+eq.name+(eq.serial?' ('+eq.serial+')'):'Unknown item';
-      var current=ls.find(function(l){return !l.dateIn;});
-      return '<div class="usage-item">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
-          '<span class="usage-name">'+label+'</span>' +
-          '<span class="badge '+(current?'out':'in')+'">'+(current?'Out with '+current.person:'Available')+'</span>' +
+    '<div class="card">' +
+      '<div style="margin-bottom:1.25rem">' +
+        '<div style="font-size:18px;font-weight:500">' + proj.name + '</div>' +
+        '<div style="font-size:13px;color:var(--ink-mid);margin-top:4px">' +
+          'Owner: <strong>' + (proj.owner || '--') + '</strong>' +
+          (proj.desc ? ' &nbsp;&middot;&nbsp; ' + proj.desc : '') +
         '</div>' +
-        '<div class="usage-meta">Used '+ls.length+' time'+(ls.length!==1?'s':'')+'</div>' +
-        '<div class="usage-entries">' +
-          ls.map(function(l){
-            return '<div class="usage-entry">'+l.person+' &nbsp; out: '+l.dateOut+' &nbsp; in: '+(l.dateIn||'not yet returned')+'</div>';
-          }).join('') +
-        '</div></div>';
-    }).join('') + '</div>';
+      '</div>' +
+      '<div class="stat-row">' +
+        '<div class="stat-card"><div class="stat-label">Equipment items</div><div class="stat-val">' + totalItems + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val">' + projLogs.length + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Currently out</div><div class="stat-val">' + outNow + '</div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">Equipment detail</div>' + detail + '</div>';
 }
 
-// Set default date
-document.getElementById('log-date-out').value = new Date().toISOString().slice(0,10);
-// Render defaults immediately (Firebase will override when it connects)
+// --- Init ---
+document.getElementById('log-date-out').value = new Date().toISOString().slice(0, 10);
 refreshTypeDropdown();
 refreshStaffDropdown();
 renderTypesChips();
 renderStaffChips();
+renderEquipment();
+renderLogs();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════
-     MODULE SCRIPT: Firebase only — updates shared state and 
-     wires up the real _fb* functions
-     ═══════════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
          query, orderBy, onSnapshot, serverTimestamp, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -628,7 +690,6 @@ var firebaseConfig = {
 var app = initializeApp(firebaseConfig);
 var db  = getFirestore(app);
 
-// Wire up _fb* stubs to real Firebase calls
 window._fbAddDoc = async function(collName, data, callback) {
   data.createdAt = serverTimestamp();
   await addDoc(collection(db, collName), data);
@@ -646,47 +707,45 @@ function setConn(ok) {
   document.getElementById('conn-text').textContent = ok ? 'Live' : 'Offline';
 }
 
-// Seed defaults if collections are empty
 async function seedIfEmpty(collName, items) {
   var snap = await getDocs(collection(db, collName));
   if (snap.empty) {
-    for (var name of items) {
-      await addDoc(collection(db, collName), { name: name, createdAt: serverTimestamp() });
+    for (var i = 0; i < items.length; i++) {
+      await addDoc(collection(db, collName), {name: items[i], createdAt: serverTimestamp()});
     }
   }
 }
-seedIfEmpty('equipmentTypes', ['Bat Detector','Camera']);
+seedIfEmpty('equipmentTypes', ['Bat Detector','Camera Trap','Data Logger','GPS Unit','Audio Recorder','Trap','Mist Net']);
 seedIfEmpty('fieldStaff', ['Anne Carey','Meredith Brainwood','Caroline','Eloise']);
 
-// Real-time listeners — update shared state vars then re-render
 onSnapshot(query(collection(db,'equipmentTypes'), orderBy('createdAt','asc')), function(snap) {
-  window._eqTypes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  window._eqTypes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
   refreshTypeDropdown();
   renderTypesChips();
   setConn(true);
 }, function(){ setConn(false); });
 
 onSnapshot(query(collection(db,'fieldStaff'), orderBy('createdAt','asc')), function(snap) {
-  window._staff = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  window._staff = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
   refreshStaffDropdown();
   renderStaffChips();
 });
 
 onSnapshot(query(collection(db,'equipment'), orderBy('createdAt','asc')), function(snap) {
-  window._equipment = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  window._equipment = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
   renderEquipment();
   refreshLogEquipSelect();
 });
 
 onSnapshot(query(collection(db,'projects'), orderBy('createdAt','asc')), function(snap) {
-  window._projects = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  window._projects = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
   renderProjects();
   refreshLogProjSelect();
   refreshReportSelect();
 });
 
 onSnapshot(query(collection(db,'logs'), orderBy('createdAt','asc')), function(snap) {
-  window._logs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  window._logs = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
   renderEquipment();
   renderLogs();
   var sel = document.getElementById('report-proj');
