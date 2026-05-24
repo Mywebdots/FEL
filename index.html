@@ -22,7 +22,7 @@
 
   .app-header{background:var(--green);color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
   .brand{display:flex;align-items:center;gap:10px}
-  .logo{width:32px;height:32px;border:1.5px solid rgba(255,255,255,0.4);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:500}
+  .logo{width:40px;height:32px;border:1.5px solid rgba(255,255,255,0.4);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px}
   .app-title{font-size:14px;font-weight:500}
   .app-sub{font-size:11px;opacity:0.65;font-weight:300;margin-top:1px}
   .dot{width:8px;height:8px;border-radius:50%;background:#a0e0c0;display:inline-block;margin-right:6px}
@@ -33,6 +33,9 @@
   .tab{padding:0 18px;height:44px;font-size:13px;font-family:var(--sans);font-weight:400;color:var(--ink-mid);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;margin-bottom:-1px;transition:color 0.15s}
   .tab:hover{color:var(--green)}
   .tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:500}
+  .tab-key{color:var(--green);font-weight:600;font-size:14px}
+  .tab-key::before{content:'';display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:7px;opacity:0.7}
+  .tab-key.active::before{opacity:1}
 
   .main{max-width:960px;margin:0 auto;padding:2rem}
   .section{display:none}
@@ -107,19 +110,19 @@
 
 <header class="app-header">
   <div class="brand">
-    <div class="logo">AE</div>
+    <div class="logo">FEL</div>
     <div>
-      <div class="app-title">Field Equipment Log</div>
-      <div class="app-sub">Applied Ecology</div>
+      <div class="app-title">FEL</div>
+      <div class="app-sub">Field Equipment Log &middot; Applied Ecology</div>
     </div>
   </div>
   <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting...</span></div>
 </header>
 
 <nav class="tabs">
-  <button class="tab active" id="tbtn-equipment" onclick="showTab('equipment')">Equipment</button>
-  <button class="tab" id="tbtn-log"       onclick="showTab('log')">Log</button>
+  <button class="tab tab-key active" id="tbtn-equipment" onclick="showTab('equipment')">Equipment</button>
   <button class="tab" id="tbtn-projects"  onclick="showTab('projects')">Projects</button>
+  <button class="tab" id="tbtn-log"       onclick="showTab('log')">Log</button>
   <button class="tab" id="tbtn-reports"   onclick="showTab('reports')">Reports</button>
   <button class="tab" id="tbtn-lists"     onclick="showTab('lists')">Lists</button>
 </nav>
@@ -157,14 +160,14 @@
   <!-- LOG -->
   <section id="tab-log" class="section">
     <div class="card">
-      <div class="card-title">Log equipment out</div>
+      <div class="card-title">Deploy to field</div>
       <div class="form-grid">
         <div class="field"><label>Equipment</label><select id="log-eq"></select></div>
         <div class="field"><label>Project</label><select id="log-proj"></select></div>
       </div>
       <div class="form-grid">
         <div class="field">
-          <label>Assigned to</label>
+          <label>Deployed by</label>
           <select id="log-person" onchange="handleStaffChange()"></select>
           <div class="add-new-wrap" id="log-person-new-wrap">
             <input id="log-person-new" placeholder="New staff name..."/>
@@ -172,16 +175,16 @@
             <button class="btn xs" onclick="cancelNewStaff()">Cancel</button>
           </div>
         </div>
-        <div class="field"><label>Date out</label><input type="date" id="log-date-out"/></div>
+        <div class="field"><label>Date deployed</label><input type="date" id="log-date-out"/></div>
       </div>
-      <div class="btn-row"><button class="btn primary" onclick="logOut()">Log out</button></div>
+      <div class="btn-row"><button class="btn primary" onclick="logOut()">Deploy to field</button></div>
     </div>
     <div class="card">
-      <div class="card-title">Active loans</div>
+      <div class="card-title">Currently in field</div>
       <div class="table-wrap" id="active-loans"><div class="loading">Loading...</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Full history</div>
+      <div class="card-title">Deployment history</div>
       <div class="table-wrap" id="all-logs"><div class="loading">Loading...</div></div>
     </div>
   </section>
@@ -435,7 +438,7 @@ function renderEquipment() {
   var rows = _equipment.map(function(e) {
     var active = _logs.find(function(l){ return l.eqId === e.id && !l.dateIn; });
     var badge  = active
-      ? '<span class="badge out">Out - ' + active.person + '</span>'
+      ? '<span class="badge out">In field - ' + active.person + '</span>'
       : '<span class="badge in">Available</span>';
     return '<tr>' +
       '<td>' + (e.type || '--') + '</td>' +
@@ -534,7 +537,7 @@ function logOut() {
   if (!person || person === '__new__') { alert('Please select a staff member.'); return; }
   if (!dateOut)                       { alert('Please enter the date out.'); return; }
   var already = _logs.find(function(l){ return l.eqId === eqId && !l.dateIn; });
-  if (already) { alert('This equipment is already logged out. Log it back in first.'); return; }
+  if (already) { alert('This equipment is already in the field. Record its return first.'); return; }
   _fbAddDoc('logs', {
     eqId: eqId, projId: projId, person: person, dateOut: dateOut, dateIn: null
   }, function() {
@@ -544,7 +547,7 @@ function logOut() {
 }
 
 function logIn(logId) {
-  var dateIn = prompt('Date returned (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
+  var dateIn = prompt('Date returned from field (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
   if (!dateIn) return;
   _fbUpdateDoc('logs', logId, {dateIn: dateIn});
 }
@@ -567,11 +570,11 @@ function renderLogs() {
           '<td>' + (pr ? pr.name : 'Unknown') + '</td>' +
           '<td>' + l.person + '</td>' +
           '<td style="font-family:var(--mono);font-size:12px">' + l.dateOut + '</td>' +
-          '<td><button class="btn sm primary" onclick="logIn(\'' + l.id + '\')">Log in</button></td>' +
+          '<td><button class="btn sm primary" onclick="logIn(\'' + l.id + '\')">Return from field</button></td>' +
           '</tr>';
       }).join('');
       aEl.innerHTML = '<table><thead><tr>' +
-        '<th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th></th>' +
+        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th></th>' +
         '</tr></thead><tbody>' + aRows + '</tbody></table>';
     }
   }
@@ -593,11 +596,11 @@ function renderLogs() {
           '<td style="font-family:var(--mono);font-size:12px">' + (l.dateIn || '--') + '</td>' +
           '<td>' + (l.dateIn
             ? '<span class="badge in">Returned</span>'
-            : '<span class="badge out">Out</span>') + '</td>' +
+            : '<span class="badge out">In field</span>') + '</td>' +
           '</tr>';
       }).join('');
       allEl.innerHTML = '<table><thead><tr>' +
-        '<th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th>Date in</th><th>Status</th>' +
+        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Date returned</th><th>Status</th>' +
         '</tr></thead><tbody>' + allRows + '</tbody></table>';
     }
   }
@@ -630,14 +633,14 @@ function generateReport() {
     var current = ls.find(function(l){ return !l.dateIn; });
     var entries = ls.map(function(l) {
       return '<div class="usage-entry">' +
-        l.person + '  out: ' + l.dateOut + '  in: ' + (l.dateIn || 'not yet returned') +
+        l.person + '  deployed: ' + l.dateOut + '  returned: ' + (l.dateIn || 'still in field') +
         '</div>';
     }).join('');
     return '<div class="usage-item">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
         '<span class="usage-name">' + label + '</span>' +
         '<span class="badge ' + (current ? 'out' : 'in') + '">' +
-          (current ? 'Out with ' + current.person : 'Available') +
+          (current ? 'In field - ' + current.person : 'Available') +
         '</span>' +
       '</div>' +
       '<div class="usage-meta">Used ' + ls.length + ' time' + (ls.length !== 1 ? 's' : '') + '</div>' +
@@ -655,8 +658,8 @@ function generateReport() {
       '</div>' +
       '<div class="stat-row">' +
         '<div class="stat-card"><div class="stat-label">Equipment items</div><div class="stat-val">' + totalItems + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val">' + projLogs.length + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Currently out</div><div class="stat-val">' + outNow + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Total deployments</div><div class="stat-val">' + projLogs.length + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Currently in field</div><div class="stat-val">' + outNow + '</div></div>' +
       '</div>' +
     '</div>' +
     '<div class="card"><div class="card-title">Equipment detail</div>' + detail + '</div>';
