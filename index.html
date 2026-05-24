@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Field Equipment Log — Applied Ecology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green:#1a6e50;--green-mid:#2a9d6e;--green-lt:#d6f0e5;--green-bg:#f0faf5;
+    --amber:#c07c20;--amber-lt:#fef3dc;--red:#b83232;--red-lt:#fdeaea;
+    --ink:#1a1f1c;--ink-mid:#4a5450;--ink-lt:#8a9490;
+    --border:#d8e4df;--surface:#ffffff;--bg:#f4f8f6;
+    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+    --radius:6px;--radius-lg:10px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:15px}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+  .app-header{background:var(--green);color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:32px;height:32px;border:1.5px solid rgba(255,255,255,0.4);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:500}
+  .app-title{font-size:14px;font-weight:500}
+  .app-sub{font-size:11px;opacity:0.65;font-weight:300;margin-top:1px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#a0e0c0;display:inline-block;margin-right:6px}
+  .dot.err{background:#f88}
+  #conn-status{font-size:12px;opacity:0.8;display:flex;align-items:center}
+
+  .tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 2rem}
+  .tab{padding:0 18px;height:44px;font-size:13px;font-family:var(--sans);font-weight:400;color:var(--ink-mid);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;margin-bottom:-1px;transition:color 0.15s}
+  .tab:hover{color:var(--green)}
+  .tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:500}
+
+  .main{max-width:960px;margin:0 auto;padding:2rem}
+  .section{display:none}
+  .section.active{display:block}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem}
+  .card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-mid);margin-bottom:1.25rem}
+
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .form-grid.full{grid-template-columns:1fr}
+  .field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-mid);margin-bottom:5px}
+
+  input,select{width:100%;height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);outline:none;transition:border-color 0.15s}
+  input:focus,select:focus{border-color:var(--green-mid)}
+  input::placeholder{color:var(--ink-lt)}
+
+  .add-new-wrap{display:none;margin-top:6px;gap:6px;align-items:center}
+  .add-new-wrap.visible{display:flex}
+  .add-new-wrap input{flex:1}
+
+  .btn{height:34px;padding:0 16px;border-radius:var(--radius);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--ink);transition:all 0.15s}
+  .btn:hover{background:var(--bg)}
+  .btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn.primary:hover{background:var(--green-mid);border-color:var(--green-mid)}
+  .btn.sm{height:28px;padding:0 10px;font-size:12px}
+  .btn.xs{height:26px;padding:0 8px;font-size:11px}
+  .btn.danger{color:var(--red)}
+  .btn.danger:hover{background:var(--red-lt);border-color:var(--red)}
+  .btn-row{display:flex;gap:8px;margin-top:4px}
+
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-lt);border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--bg);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--green-bg)}
+
+  .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+  .badge.out{background:var(--amber-lt);color:var(--amber)}
+  .badge.in{background:var(--green-lt);color:var(--green)}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.25rem}
+  .stat-card{background:var(--green-bg);border:1px solid var(--green-lt);border-radius:var(--radius-lg);padding:1rem 1.25rem}
+  .stat-label{font-size:11px;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px}
+  .stat-val{font-size:28px;font-weight:300;color:var(--green);font-family:var(--mono)}
+
+  .usage-item{padding:12px 0;border-bottom:1px solid var(--border)}
+  .usage-item:last-child{border-bottom:none}
+  .usage-name{font-weight:500;font-size:14px}
+  .usage-meta{font-size:12px;color:var(--ink-mid);margin-top:3px}
+  .usage-entries{margin-top:6px;padding-left:12px;border-left:2px solid var(--green-lt)}
+  .usage-entry{font-size:12px;color:var(--ink-mid);padding:2px 0;font-family:var(--mono)}
+
+  .list-items{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .list-chip{display:inline-flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid var(--green-lt);border-radius:20px;padding:4px 12px;font-size:13px;color:var(--green)}
+  .list-chip button{background:none;border:none;cursor:pointer;color:var(--green);font-size:16px;line-height:1;padding:0;opacity:0.5}
+  .list-chip button:hover{opacity:1}
+  .list-divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+
+  .empty{text-align:center;color:var(--ink-lt);font-size:13px;padding:2rem 0}
+  .loading{text-align:center;color:var(--ink-lt);font-size:13px;padding:1rem 0;font-style:italic}
+
+  @media(max-width:640px){
+    .main{padding:1rem}
+    .form-grid{grid-template-columns:1fr}
+    .tabs{padding:0 1rem}
+    .app-header{padding:0 1rem}
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="logo">AE</div>
+    <div>
+      <div class="app-title">Field Equipment Log</div>
+      <div class="app-sub">Applied Ecology</div>
+    </div>
+  </div>
+  <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting…</span></div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" id="tbtn-equipment" onclick="showTab('equipment')">⬡ Equipment</button>
+  <button class="tab" id="tbtn-log"       onclick="showTab('log')">↕ Log</button>
+  <button class="tab" id="tbtn-projects"  onclick="showTab('projects')">◫ Projects</button>
+  <button class="tab" id="tbtn-reports"   onclick="showTab('reports')">◈ Reports</button>
+  <button class="tab" id="tbtn-lists"     onclick="showTab('lists')">☰ Lists</button>
+</nav>
+
+<main class="main">
+
+  <!-- EQUIPMENT -->
+  <section id="tab-equipment" class="section active">
+    <div class="card">
+      <div class="card-title">Add equipment</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Equipment type</label>
+          <select id="eq-type" onchange="handleTypeChange()"></select>
+          <div class="add-new-wrap" id="eq-type-new-wrap">
+            <input id="eq-type-new" placeholder="New equipment type…"/>
+            <button class="btn xs primary" onclick="saveNewType()">Add</button>
+            <button class="btn xs" onclick="cancelNewType()">Cancel</button>
+          </div>
+        </div>
+        <div class="field"><label>Name / model</label><input id="eq-name" placeholder="e.g. Anabat Swift"/></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Serial number</label><input id="eq-serial" placeholder="Optional"/></div>
+        <div class="field"><label>Notes</label><input id="eq-notes" placeholder="Optional condition notes"/></div>
+      </div>
+      <div class="btn-row"><button class="btn primary" onclick="addEquipment()">Add equipment</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Equipment register</div>
+      <div class="table-wrap" id="eq-list"><div class="loading">Loading…</div></div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section id="tab-log" class="section">
+    <div class="card">
+      <div class="card-title">Log equipment out</div>
+      <div class="form-grid">
+        <div class="field"><label>Equipment</label><select id="log-eq"></select></div>
+        <div class="field"><label>Project</label><select id="log-proj"></select></div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Assigned to</label>
+          <select id="log-person" onchange="handleStaffChange()"></select>
+          <div class="add-new-wrap" id="log-person-new-wrap">
+            <input id="log-person-new" placeholder="New staff name…"/>
+            <button class="btn xs primary" onclick="saveNewStaff()">Add</button>
+            <button class="btn xs" onclick="cancelNewStaff()">Cancel</button>
+          </div>
+        </div>
+        <div class="field"><label>Date out</label><input type="date" id="log-date-out"/></div>
+      </div>
+      <div class="btn-row"><button class="btn primary" onclick="logOut()">Log out</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active loans</div>
+      <div class="table-wrap" id="active-loans"><div class="loading">Loading…</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Full history</div>
+      <div class="table-wrap" id="all-logs"><div class="loading">Loading…</div></div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="tab-projects" class="section">
+    <div class="card">
+      <div class="card-title">Add project</div>
+      <div class="form-grid">
+        <div class="field"><label>Project name</label><input id="proj-name" placeholder="e.g. Koala Survey — Western Sydney"/></div>
+        <div class="field"><label>Project owner</label><input id="proj-owner" placeholder="Name"/></div>
+      </div>
+      <div class="form-grid full">
+        <div class="field"><label>Description (optional)</label><input id="proj-desc" placeholder="Brief description"/></div>
+      </div>
+      <div class="btn-row"><button class="btn primary" onclick="addProject()">Add project</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Projects</div>
+      <div class="table-wrap" id="proj-list"><div class="loading">Loading…</div></div>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section id="tab-reports" class="section">
+    <div class="card">
+      <div class="card-title">Project report</div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>Select project</label>
+          <select id="report-proj" onchange="generateReport()">
+            <option value="">— select a project —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="report-output"></div>
+  </section>
+
+  <!-- LISTS -->
+  <section id="tab-lists" class="section">
+    <div class="card">
+      <div class="card-title">Manage lists</div>
+      <p style="font-size:13px;color:var(--ink-mid);margin-bottom:1.5rem">These lists power the dropdowns across the app. Changes are saved instantly for everyone.</p>
+
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px">Equipment types</div>
+      <div class="list-items" id="types-chips"><div class="loading">Loading…</div></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <input id="new-type-input" placeholder="Add equipment type…" style="max-width:260px"
+          onkeydown="if(event.key==='Enter')addToList('equipmentTypes','new-type-input')"/>
+        <button class="btn sm primary" onclick="addToList('equipmentTypes','new-type-input')">Add</button>
+      </div>
+
+      <hr class="list-divider"/>
+
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px">Field staff</div>
+      <div class="list-items" id="staff-chips"><div class="loading">Loading…</div></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <input id="new-staff-input" placeholder="Add staff name…" style="max-width:260px"
+          onkeydown="if(event.key==='Enter')addToList('fieldStaff','new-staff-input')"/>
+        <button class="btn sm primary" onclick="addToList('fieldStaff','new-staff-input')">Add</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PLAIN SCRIPT: all UI functions defined here BEFORE Firebase
+     so they work even if Firebase hasn't loaded yet
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// -- Shared state (populated by Firebase module below) ------------------------
+var _equipment = [];
+var _projects  = [];
+var _logs      = [];
+var _eqTypes   = [];
+var _staff     = [];
+
+// Firebase operation stubs -- replaced by real functions once module loads
+var _fbAddDoc     = function(){ alert('Still connecting to database...'); };
+var _fbDeleteDoc  = function(){ alert('Still connecting to database...'); };
+var _fbUpdateDoc  = function(){ alert('Still connecting to database...'); };
+
+// -- TAB SWITCHING -------------------------------------------------------------
+function showTab(t) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tab-' + t).classList.add('active');
+  document.getElementById('tbtn-' + t).classList.add('active');
+}
+
+// -- TYPE DROPDOWN -------------------------------------------------------------
+function refreshTypeDropdown() {
+  var sel = document.getElementById('eq-type');
+  if (!sel) return;
+  var prev = sel.value;
+  sel.innerHTML =
+    '<option value="">-- select type --</option>' +
+    _eqTypes.map(function(t){ return '<option value="'+t.name+'">'+t.name+'</option>'; }).join('') +
+    '<option value="__new__">+ Add new type...</option>';
+  if (prev && prev !== '__new__') sel.value = prev;
+}
+
+function handleTypeChange() {
+  var sel  = document.getElementById('eq-type');
+  var wrap = document.getElementById('eq-type-new-wrap');
+  if (sel.value === '__new__') {
+    wrap.classList.add('visible');
+    document.getElementById('eq-type-new').focus();
+  } else {
+    wrap.classList.remove('visible');
+  }
+}
+
+function cancelNewType() {
+  document.getElementById('eq-type-new-wrap').classList.remove('visible');
+  document.getElementById('eq-type').selectedIndex = 0;
+}
+
+function saveNewType() {
+  var input = document.getElementById('eq-type-new');
+  var val = input.value.trim();
+  if (!val) return;
+  _fbAddDoc('equipmentTypes', { name: val }, function() {
+    input.value = '';
+    document.getElementById('eq-type-new-wrap').classList.remove('visible');
+  });
+}
+
+// -- STAFF DROPDOWN ------------------------------------------------------------
+function refreshStaffDropdown() {
+  var sel = document.getElementById('log-person');
+  if (!sel) return;
+  var prev = sel.value;
+  sel.innerHTML =
+    '<option value="">-- select staff --</option>' +
+    _staff.map(function(s){ return '<option value="'+s.name+'">'+s.name+'</option>'; }).join('') +
+    '<option value="__new__">+ Add new person...</option>';
+  if (prev && prev !== '__new__') sel.value = prev;
+}
+
+function handleStaffChange() {
+  var sel  = document.getElementById('log-person');
+  var wrap = document.getElementById('log-person-new-wrap');
+  if (sel.value === '__new__') {
+    wrap.classList.add('visible');
+    document.getElementById('log-person-new').focus();
+  } else {
+    wrap.classList.remove('visible');
+  }
+}
+
+function cancelNewStaff() {
+  document.getElementById('log-person-new-wrap').classList.remove('visible');
+  document.getElementById('log-person').selectedIndex = 0;
+}
+
+function saveNewStaff() {
+  var input = document.getElementById('log-person-new');
+  var val = input.value.trim();
+  if (!val) return;
+  _fbAddDoc('fieldStaff', { name: val }, function() {
+    input.value = '';
+    document.getElementById('log-person-new-wrap').classList.remove('visible');
+  });
+}
+
+// -- LISTS TAB -----------------------------------------------------------------
+function addToList(collName, inputId) {
+  var input = document.getElementById(inputId);
+  var val = input.value.trim();
+  if (!val) return;
+  _fbAddDoc(collName, { name: val }, function() { input.value = ''; });
+}
+
+function deleteListItem(collName, id) {
+  if (!confirm('Remove this item from the list?')) return;
+  _fbDeleteDoc(collName, id);
+}
+
+function renderTypesChips() {
+  var el = document.getElementById('types-chips');
+  if (!el) return;
+  el.innerHTML = _eqTypes.length
+    ? _eqTypes.map(function(t){
+        return '<span class="list-chip">'+t.name+' <button onclick="deleteListItem(\'equipmentTypes\',\''+t.id+'\')" title="Remove">\xd7</button></span>';
+      }).join('')
+    : '<span style="font-size:13px;color:var(--ink-lt)">None yet.</span>';
+}
+
+function renderStaffChips() {
+  var el = document.getElementById('staff-chips');
+  if (!el) return;
+  el.innerHTML = _staff.length
+    ? _staff.map(function(s){
+        return '<span class="list-chip">'+s.name+' <button onclick="deleteListItem(\'fieldStaff\',\''+s.id+'\')" title="Remove">\xd7</button></span>';
+      }).join('')
+    : '<span style="font-size:13px;color:var(--ink-lt)">None yet.</span>';
+}
+
+// -- EQUIPMENT -----------------------------------------------------------------
+function addEquipment() {
+  var type = document.getElementById('eq-type').value;
+  var name = document.getElementById('eq-name').value.trim();
+  if (!type || type === '__new__') { alert('Please select an equipment type.'); return; }
+  _fbAddDoc('equipment', {
+    type: type,
+    name: name,
+    serial: document.getElementById('eq-serial').value.trim(),
+    notes:  document.getElementById('eq-notes').value.trim()
+  }, function() {
+    ['eq-name','eq-serial','eq-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('eq-type').selectedIndex = 0;
+  });
+}
+
+function deleteEquipment(id) {
+  if (!confirm('Remove this equipment item?')) return;
+  _fbDeleteDoc('equipment', id);
+}
+
+function renderEquipment() {
+  var el = document.getElementById('eq-list');
+  if (!el) return;
+  if (!_equipment.length) { el.innerHTML='<div class="empty">No equipment added yet.</div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>Type</th><th>Name / model</th><th>Serial</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>' +
+    _equipment.map(function(e) {
+      var active = _logs.find(function(l){ return l.eqId===e.id && !l.dateIn; });
+      var badge  = active
+        ? '<span class="badge out">Out -- '+active.person+'</span>'
+        : '<span class="badge in">Available</span>';
+      return '<tr><td>'+(e.type||'--')+'</td><td style="font-weight:500">'+(e.name||'--')+'</td>' +
+        '<td style="font-family:var(--mono);font-size:12px;color:var(--ink-mid)">'+(e.serial||'--')+'</td>' +
+        '<td style="color:var(--ink-mid)">'+(e.notes||'--')+'</td><td>'+badge+'</td>' +
+        '<td><button class="btn sm danger" onclick="deleteEquipment(\''+e.id+'\')">Remove</button></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+// -- PROJECTS ------------------------------------------------------------------
+function addProject() {
+  var name = document.getElementById('proj-name').value.trim();
+  if (!name) { alert('Please enter a project name.'); return; }
+  _fbAddDoc('projects', {
+    name: name,
+    owner: document.getElementById('proj-owner').value.trim(),
+    desc:  document.getElementById('proj-desc').value.trim()
+  }, function() {
+    ['proj-name','proj-owner','proj-desc'].forEach(function(id){ document.getElementById(id).value=''; });
+  });
+}
+
+function deleteProject(id) {
+  if (!confirm('Remove this project?')) return;
+  _fbDeleteDoc('projects', id);
+}
+
+function renderProjects() {
+  var el = document.getElementById('proj-list');
+  if (!el) return;
+  if (!_projects.length) { el.innerHTML='<div class="empty">No projects added yet.</div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>Project</th><th>Owner</th><th>Description</th><th></th></tr></thead><tbody>' +
+    _projects.map(function(p){
+      return '<tr><td style="font-weight:500">'+p.name+'</td><td>'+(p.owner||'--')+'</td>' +
+        '<td style="color:var(--ink-mid)">'+(p.desc||'--')+'</td>' +
+        '<td><button class="btn sm danger" onclick="deleteProject(\''+p.id+'\')">Remove</button></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+// -- LOG SELECTS ---------------------------------------------------------------
+function refreshLogEquipSelect() {
+  var sel = document.getElementById('log-eq');
+  if (!sel) return;
+  sel.innerHTML = _equipment.length
+    ? _equipment.map(function(e){
+        return '<option value="'+e.id+'">'+(e.type?e.type+' -- ':'')+( e.name||e.serial||e.id)+'</option>';
+      }).join('')
+    : '<option value="">No equipment added yet</option>';
+}
+
+function refreshLogProjSelect() {
+  var sel = document.getElementById('log-proj');
+  if (!sel) return;
+  sel.innerHTML = _projects.length
+    ? _projects.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join('')
+    : '<option value="">No projects added yet</option>';
+}
+
+function refreshReportSelect() {
+  var sel = document.getElementById('report-proj');
+  if (!sel) return;
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">-- select a project --</option>' +
+    _projects.map(function(p){
+      return '<option value="'+p.id+'"'+(p.id===cur?' selected':'')+'>'+p.name+'</option>';
+    }).join('');
+}
+
+// -- LOGS ----------------------------------------------------------------------
+function logOut() {
+  var eqId   = document.getElementById('log-eq').value;
+  var projId = document.getElementById('log-proj').value;
+  var person = document.getElementById('log-person').value;
+  var dateOut= document.getElementById('log-date-out').value;
+  if (!eqId)                          { alert('Please select equipment.'); return; }
+  if (!projId)                         { alert('Please select a project.'); return; }
+  if (!person || person==='__new__')  { alert('Please select a staff member.'); return; }
+  if (!dateOut)                        { alert('Please enter the date out.'); return; }
+  if (_logs.find(function(l){ return l.eqId===eqId && !l.dateIn; })) {
+    alert('This equipment is already logged out. Log it back in first.'); return;
+  }
+  _fbAddDoc('logs', { eqId:eqId, projId:projId, person:person, dateOut:dateOut, dateIn:null }, function() {
+    document.getElementById('log-date-out').value = new Date().toISOString().slice(0,10);
+    document.getElementById('log-person').selectedIndex = 0;
+  });
+}
+
+function logIn(logId) {
+  var dateIn = prompt('Date returned (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
+  if (!dateIn) return;
+  _fbUpdateDoc('logs', logId, { dateIn: dateIn });
+}
+
+function renderLogs() {
+  var active = _logs.filter(function(l){ return !l.dateIn; });
+  var all    = _logs.slice().reverse();
+
+  var aEl = document.getElementById('active-loans');
+  if (aEl) {
+    if (!active.length) { aEl.innerHTML='<div class="empty">No equipment currently out.</div>'; }
+    else {
+      aEl.innerHTML = '<table><thead><tr><th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th></th></tr></thead><tbody>' +
+        active.map(function(l){
+          var eq=_equipment.find(function(e){return e.id===l.eqId;});
+          var pr=_projects.find(function(p){return p.id===l.projId;});
+          return '<tr><td style="font-weight:500">'+(eq?(eq.type?eq.type+' -- ':'')+eq.name:'Unknown')+'</td>' +
+            '<td>'+(pr?pr.name:'Unknown')+'</td><td>'+l.person+'</td>' +
+            '<td style="font-family:var(--mono);font-size:12px">'+l.dateOut+'</td>' +
+            '<td><button class="btn sm primary" onclick="logIn(\''+l.id+'\')">Log in</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    }
+  }
+
+  var allEl = document.getElementById('all-logs');
+  if (allEl) {
+    if (!all.length) { allEl.innerHTML='<div class="empty">No log entries yet.</div>'; }
+    else {
+      allEl.innerHTML = '<table><thead><tr><th>Equipment</th><th>Project</th><th>With</th><th>Date out</th><th>Date in</th><th>Status</th></tr></thead><tbody>' +
+        all.map(function(l){
+          var eq=_equipment.find(function(e){return e.id===l.eqId;});
+          var pr=_projects.find(function(p){return p.id===l.projId;});
+          return '<tr><td style="font-weight:500">'+(eq?(eq.type?eq.type+' -- ':'')+eq.name:'Unknown')+'</td>' +
+            '<td>'+(pr?pr.name:'Unknown')+'</td><td>'+l.person+'</td>' +
+            '<td style="font-family:var(--mono);font-size:12px">'+l.dateOut+'</td>' +
+            '<td style="font-family:var(--mono);font-size:12px">'+(l.dateIn||'--')+'</td>' +
+            '<td>'+(l.dateIn?'<span class="badge in">Returned</span>':'<span class="badge out">Out</span>')+'</td></tr>';
+        }).join('') + '</tbody></table>';
+    }
+  }
+}
+
+// -- REPORTS -------------------------------------------------------------------
+function generateReport() {
+  var projId = document.getElementById('report-proj').value;
+  var out    = document.getElementById('report-output');
+  if (!projId) { out.innerHTML=''; return; }
+  var proj     = _projects.find(function(p){return p.id===projId;});
+  var projLogs = _logs.filter(function(l){return l.projId===projId;});
+  if (!projLogs.length) { out.innerHTML='<div class="card"><div class="empty">No equipment logged for this project yet.</div></div>'; return; }
+  var eqMap = {};
+  projLogs.forEach(function(l){ if(!eqMap[l.eqId]) eqMap[l.eqId]=[]; eqMap[l.eqId].push(l); });
+  var totalItems = Object.keys(eqMap).length;
+  var outNow     = projLogs.filter(function(l){return !l.dateIn;}).length;
+  out.innerHTML =
+    '<div class="card"><div style="margin-bottom:1.25rem">' +
+      '<div style="font-size:18px;font-weight:500">'+proj.name+'</div>' +
+      '<div style="font-size:13px;color:var(--ink-mid);margin-top:4px">Owner: <strong>'+(proj.owner||'--')+'</strong>'+(proj.desc?' &nbsp;.&nbsp; '+proj.desc:'')+'</div>' +
+    '</div>' +
+    '<div class="stat-row">' +
+      '<div class="stat-card"><div class="stat-label">Equipment items</div><div class="stat-val">'+totalItems+'</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val">'+projLogs.length+'</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Currently out</div><div class="stat-val">'+outNow+'</div></div>' +
+    '</div></div>' +
+    '<div class="card"><div class="card-title">Equipment detail</div>' +
+    Object.entries(eqMap).map(function(entry){
+      var eqId=entry[0], ls=entry[1];
+      var eq=_equipment.find(function(e){return e.id===eqId;});
+      var label=eq?(eq.type?eq.type+' -- ':'')+eq.name+(eq.serial?' ('+eq.serial+')'):'Unknown item';
+      var current=ls.find(function(l){return !l.dateIn;});
+      return '<div class="usage-item">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
+          '<span class="usage-name">'+label+'</span>' +
+          '<span class="badge '+(current?'out':'in')+'">'+(current?'Out with '+current.person:'Available')+'</span>' +
+        '</div>' +
+        '<div class="usage-meta">Used '+ls.length+' time'+(ls.length!==1?'s':'')+'</div>' +
+        '<div class="usage-entries">' +
+          ls.map(function(l){
+            return '<div class="usage-entry">'+l.person+' &nbsp; out: '+l.dateOut+' &nbsp; in: '+(l.dateIn||'not yet returned')+'</div>';
+          }).join('') +
+        '</div></div>';
+    }).join('') + '</div>';
+}
+
+// Set default date
+document.getElementById('log-date-out').value = new Date().toISOString().slice(0,10);
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE SCRIPT: Firebase only — updates shared state and 
+     wires up the real _fb* functions
+     ═══════════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
+         query, orderBy, onSnapshot, serverTimestamp, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+var firebaseConfig = {
+  apiKey: "AIzaSyAsPqMNnz2NpKcRTpcazMdHc3ewvfoCacI",
+  authDomain: "ai-fel.firebaseapp.com",
+  projectId: "ai-fel",
+  storageBucket: "ai-fel.firebasestorage.app",
+  messagingSenderId: "1015418417779",
+  appId: "1:1015418417779:web:7f4c28305e5da220c97006"
+};
+
+var app = initializeApp(firebaseConfig);
+var db  = getFirestore(app);
+
+// Wire up _fb* stubs to real Firebase calls
+window._fbAddDoc = async function(collName, data, callback) {
+  data.createdAt = serverTimestamp();
+  await addDoc(collection(db, collName), data);
+  if (callback) callback();
+};
+window._fbDeleteDoc = async function(collName, id) {
+  await deleteDoc(doc(db, collName, id));
+};
+window._fbUpdateDoc = async function(collName, id, data) {
+  await updateDoc(doc(db, collName, id), data);
+};
+
+function setConn(ok) {
+  document.getElementById('dot').className = 'dot' + (ok ? '' : ' err');
+  document.getElementById('conn-text').textContent = ok ? 'Live' : 'Offline';
+}
+
+// Seed defaults if collections are empty
+async function seedIfEmpty(collName, items) {
+  var snap = await getDocs(collection(db, collName));
+  if (snap.empty) {
+    for (var name of items) {
+      await addDoc(collection(db, collName), { name: name, createdAt: serverTimestamp() });
+    }
+  }
+}
+seedIfEmpty('equipmentTypes', ['Bat Detector','Camera']);
+seedIfEmpty('fieldStaff', ['Anne Carey','Meredith Brainwood','Caroline','Eloise']);
+
+// Real-time listeners — update shared state vars then re-render
+onSnapshot(query(collection(db,'equipmentTypes'), orderBy('createdAt','asc')), function(snap) {
+  window._eqTypes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  refreshTypeDropdown();
+  renderTypesChips();
+  setConn(true);
+}, function(){ setConn(false); });
+
+onSnapshot(query(collection(db,'fieldStaff'), orderBy('createdAt','asc')), function(snap) {
+  window._staff = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  refreshStaffDropdown();
+  renderStaffChips();
+});
+
+onSnapshot(query(collection(db,'equipment'), orderBy('createdAt','asc')), function(snap) {
+  window._equipment = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  renderEquipment();
+  refreshLogEquipSelect();
+});
+
+onSnapshot(query(collection(db,'projects'), orderBy('createdAt','asc')), function(snap) {
+  window._projects = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  renderProjects();
+  refreshLogProjSelect();
+  refreshReportSelect();
+});
+
+onSnapshot(query(collection(db,'logs'), orderBy('createdAt','asc')), function(snap) {
+  window._logs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  renderEquipment();
+  renderLogs();
+  var sel = document.getElementById('report-proj');
+  if (sel && sel.value) generateReport();
+});
+</script>
+
+</body>
+</html>
