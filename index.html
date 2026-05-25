@@ -520,7 +520,8 @@ function refreshLogEquipSelect() {
   if (!sel) return;
   sel.innerHTML = _equipment.length
     ? _equipment.map(function(e) {
-        var label = (e.type ? e.type + ' - ' : '') + (e.name || e.serial || e.id);
+        var label = (e.type ? e.type + ' - ' : '') + (e.name || '--');
+        if (e.serial) label += ' (' + e.serial + ')';
         return '<option value="' + e.id + '">' + label + '</option>';
       }).join('')
     : '<option value="">No equipment added yet</option>';
