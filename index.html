@@ -116,7 +116,10 @@
       <div class="app-sub">Field Equipment Log &middot; Applied Ecology</div>
     </div>
   </div>
-  <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting...</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="btn" id="export-btn" onclick="exportAllData()" style="background:#f0faf5;color:#1a6e50;border-color:#d6f0e5;font-weight:500">Export data</button>
+    <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting...</span></div>
+  </div>
 </header>
 
 <nav class="tabs">
@@ -124,6 +127,7 @@
   <button class="tab" id="tbtn-projects"  onclick="showTab('projects')">Projects</button>
   <button class="tab" id="tbtn-log"       onclick="showTab('log')">Log</button>
   <button class="tab" id="tbtn-reports"   onclick="showTab('reports')">Reports</button>
+  <button class="tab" id="tbtn-service"   onclick="showTab('service')">Service</button>
   <button class="tab" id="tbtn-lists"     onclick="showTab('lists')">Lists</button>
 </nav>
 
@@ -239,6 +243,33 @@
     <div id="report-output"></div>
   </section>
 
+  <!-- SERVICE -->
+  <section id="tab-service" class="section">
+    <div class="card">
+      <div class="card-title">Equipment service log</div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>Select equipment</label>
+          <select id="service-eq" onchange="loadServiceNotes()"></select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Service date</label>
+          <input type="date" id="service-date"/>
+        </div>
+      </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>Service notes</label>
+          <textarea id="service-note" placeholder="e.g. Battery replaced, cleaned sensor, recalibrated..." style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:14px;color:var(--ink);outline:none" onkeydown="if(event.ctrlKey && event.key==='Enter') addServiceNote()"></textarea>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn primary" onclick="addServiceNote()">Add service note</button></div>
+      <div class="table-wrap" id="service-notes"><div class="empty">Select equipment to view service history</div></div>
+    </div>
+  </section>
+
   <!-- LISTS -->
   <section id="tab-lists" class="section">
     <div class="card">
@@ -276,6 +307,7 @@
 var _equipment = [];
 var _projects  = [];
 var _logs      = [];
+var _services  = [];
 var _eqTypes = [
   {id:'d-bat',      name:'Bat Detector'},
   {id:'d-camera',   name:'Camera Trap'},
@@ -294,6 +326,9 @@ var _staff = [
 
 // Sort state: false = newest first (default), true = oldest first
 var _logsNewestFirst = true;
+
+// Edit state for service notes
+var _editingServiceId = null;
 
 // Firebase stubs - replaced by module once connected
 var _fbAddDoc    = function(){ alert('Still connecting to database...'); };
@@ -739,12 +774,156 @@ function generateReport() {
     '<div class="card"><div class="card-title">Equipment detail</div>' + detail + '</div>';
 }
 
+// --- Service ---
+function refreshServiceEqSelect() {
+  var sel = document.getElementById('service-eq');
+  if (!sel) return;
+  var prev = sel.value;
+  sel.innerHTML = _equipment.length
+    ? '<option value="">-- select equipment --</option>' +
+      _equipment.map(function(e) {
+        var label = (e.type ? e.type + ' - ' : '') + (e.name || '--');
+        if (e.serial) label += ' (' + e.serial + ')';
+        return '<option value="' + e.id + '">' + label + '</option>';
+      }).join('')
+    : '<option value="">No equipment added yet</option>';
+  if (prev) sel.value = prev;
+}
+
+function loadServiceNotes() {
+  var eqId = document.getElementById('service-eq').value;
+  var el = document.getElementById('service-notes');
+  if (!eqId) {
+    el.innerHTML = '<div class="empty">Select equipment to view service history</div>';
+    return;
+  }
+  var notes = _services.filter(function(s){ return s.eqId === eqId; });
+  if (!notes.length) {
+    el.innerHTML = '<div class="empty">No service notes yet for this equipment.</div>';
+    return;
+  }
+  notes = notes.slice().reverse();
+  var rows = notes.map(function(n) {
+    var isEditing = _editingServiceId === n.id;
+    if (isEditing) {
+      return '<tr style="background:var(--green-bg)">' +
+        '<td><input type="date" id="edit-service-date-' + n.id + '" value="' + (n.date || '') + '" style="width:100%;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:13px"/></td>' +
+        '<td><textarea id="edit-service-note-' + n.id + '" style="width:100%;height:60px;padding:8px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:13px;color:var(--ink)">' + (n.note || '') + '</textarea></td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn sm primary" onclick="saveServiceEdit(\'' + n.id + '\')">Save</button> ' +
+          '<button class="btn sm" onclick="cancelServiceEdit()">Cancel</button>' +
+        '</td>' +
+        '</tr>';
+    } else {
+      return '<tr>' +
+        '<td style="font-family:var(--mono);font-size:12px">' + (n.date || '--') + '</td>' +
+        '<td style="white-space:pre-wrap;color:var(--ink-mid)">' + (n.note || '--') + '</td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn sm" onclick="editServiceNote(\'' + n.id + '\')">Edit</button> ' +
+          '<button class="btn sm danger" onclick="deleteServiceNote(\'' + n.id + '\')">Delete</button>' +
+        '</td>' +
+        '</tr>';
+    }
+  }).join('');
+  el.innerHTML = '<table><thead><tr><th>Date</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function addServiceNote() {
+  var eqId = document.getElementById('service-eq').value;
+  var date = document.getElementById('service-date').value;
+  var note = document.getElementById('service-note').value.trim();
+  if (!eqId) { alert('Please select equipment.'); return; }
+  if (!date) { alert('Please select a service date.'); return; }
+  if (!note) { alert('Please enter a service note.'); return; }
+  _fbAddDoc('services', {eqId: eqId, date: date, note: note}, function() {
+    document.getElementById('service-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('service-note').value = '';
+  });
+}
+
+function editServiceNote(id) {
+  _editingServiceId = id;
+  loadServiceNotes();
+}
+
+function cancelServiceEdit() {
+  _editingServiceId = null;
+  loadServiceNotes();
+}
+
+function saveServiceEdit(id) {
+  var date = document.getElementById('edit-service-date-' + id).value;
+  var note = document.getElementById('edit-service-note-' + id).value.trim();
+  if (!date) { alert('Please select a service date.'); return; }
+  if (!note) { alert('Please enter a service note.'); return; }
+  _fbUpdateDoc('services', id, {date: date, note: note});
+  _editingServiceId = null;
+}
+
+function deleteServiceNote(id) {
+  if (!confirm('Delete this service note?')) return;
+  _fbDeleteDoc('services', id);
+}
+
+// --- Export ---
+function downloadCSV(filename, data) {
+  var csv = data.join('\n');
+  var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
+function exportAllData() {
+  var timestamp = new Date().toISOString().slice(0, 10);
+
+  // Equipment CSV
+  var eqHeader = 'Type,Name,Serial,Notes';
+  var eqRows = _equipment.map(function(e) {
+    return '"' + (e.type || '') + '","' + (e.name || '') + '","' + (e.serial || '') + '","' + (e.notes || '').replace(/"/g, '""') + '"';
+  });
+  downloadCSV('FEL_Equipment_' + timestamp + '.csv', [eqHeader].concat(eqRows));
+
+  // Projects CSV
+  var projHeader = 'Project,Owner,Description';
+  var projRows = _projects.map(function(p) {
+    return '"' + (p.name || '') + '","' + (p.owner || '') + '","' + (p.desc || '').replace(/"/g, '""') + '"';
+  });
+  downloadCSV('FEL_Projects_' + timestamp + '.csv', [projHeader].concat(projRows));
+
+  // Logs CSV
+  var logHeader = 'Equipment,Project,Deployed by,Date deployed,Date returned,Location,Serial,Status';
+  var logRows = _logs.slice().reverse().map(function(l) {
+    var eq = _equipment.find(function(e){ return e.id === l.eqId; });
+    var proj = _projects.find(function(p){ return p.id === l.projId; });
+    var eqLabel = eq ? (eq.type || '') + ' - ' + (eq.name || '') : 'Unknown';
+    var status = l.dateIn ? 'Returned' : 'In field';
+    return '"' + eqLabel + '","' + (proj ? proj.name : 'Unknown') + '","' + (l.person || '') + '","' + (l.dateOut || '') + '","' + (l.dateIn || '') + '","' + (l.location || '').replace(/"/g, '""') + '","' + (l.serial || '') + '","' + status + '"';
+  });
+  downloadCSV('FEL_Logs_' + timestamp + '.csv', [logHeader].concat(logRows));
+
+  // Services CSV
+  var svcHeader = 'Equipment,Service date,Service notes';
+  var svcRows = _services.slice().reverse().map(function(s) {
+    var eq = _equipment.find(function(e){ return e.id === s.eqId; });
+    var eqLabel = eq ? (eq.type || '') + ' - ' + (eq.name || '') : 'Unknown';
+    return '"' + eqLabel + '","' + (s.date || '') + '","' + (s.note || '').replace(/"/g, '""') + '"';
+  });
+  downloadCSV('FEL_Services_' + timestamp + '.csv', [svcHeader].concat(svcRows));
+
+  alert('Downloaded 4 CSV files: Equipment, Projects, Logs, and Services');
+}
+
 // --- Init ---
-document.getElementById('log-date-out').value = new Date().toISOString().slice(0, 10);
+var todayDate = new Date().toISOString().slice(0, 10);
+document.getElementById('log-date-out').value = todayDate;
+document.getElementById('service-date').value = todayDate;
 refreshTypeDropdown();
 refreshStaffDropdown();
 refreshProjSelect();
 refreshLogProjSelect();
+refreshServiceEqSelect();
 renderTypesChips();
 renderStaffChips();
 renderEquipment();
@@ -830,6 +1009,12 @@ onSnapshot(query(collection(db,'logs'), orderBy('createdAt','asc')), function(sn
   renderLogs();
   var sel = document.getElementById('report-proj');
   if (sel && sel.value) generateReport();
+});
+
+onSnapshot(query(collection(db,'services'), orderBy('createdAt','asc')), function(snap) {
+  window._services = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+  refreshServiceEqSelect();
+  loadServiceNotes();
 });
 </script>
 
