@@ -177,8 +177,9 @@
         </div>
         <div class="field"><label>Date deployed</label><input type="date" id="log-date-out"/></div>
       </div>
-      <div class="form-grid full">
+      <div class="form-grid">
         <div class="field"><label>Location hint</label><input id="log-location" placeholder="e.g. Northern transect, near creek crossing"/></div>
+        <div class="field"><label>Serial number (optional)</label><input id="log-serial" placeholder="Equipment serial or ID"/></div>
       </div>
       <div class="btn-row"><button class="btn primary" onclick="logOut()">Deploy to field</button></div>
     </div>
@@ -589,11 +590,13 @@ function logOut() {
   if (already) { alert('This equipment is already in the field. Record its return first.'); return; }
   _fbAddDoc('logs', {
     eqId: eqId, projId: projId, person: person, dateOut: dateOut, dateIn: null,
-    location: document.getElementById('log-location').value.trim()
+    location: document.getElementById('log-location').value.trim(),
+    serial: document.getElementById('log-serial').value.trim()
   }, function() {
     document.getElementById('log-date-out').value = new Date().toISOString().slice(0, 10);
     document.getElementById('log-person').selectedIndex = 0;
     document.getElementById('log-location').value = '';
+    document.getElementById('log-serial').value = '';
   });
 }
 
@@ -633,12 +636,13 @@ function renderLogs() {
           '<td>' + (pr ? pr.name : 'Unknown') + '</td>' +
           '<td>' + l.person + '</td>' +
           '<td style="font-family:var(--mono);font-size:12px">' + l.dateOut + '</td>' +
+          '<td style="color:var(--ink-mid);font-family:var(--mono);font-size:12px">' + (l.serial || '--') + '</td>' +
           '<td style="color:var(--ink-mid)">' + (l.location || '--') + '</td>' +
           '<td><button class="btn sm primary" onclick="logIn(\'' + l.id + '\')">Return from field</button></td>' +
           '</tr>';
       }).join('');
       aEl.innerHTML = '<table><thead><tr>' +
-        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Location</th><th></th>' +
+        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Serial</th><th>Location</th><th></th>' +
         '</tr></thead><tbody>' + aRows + '</tbody></table>';
     }
   }
@@ -658,6 +662,7 @@ function renderLogs() {
           '<td>' + l.person + '</td>' +
           '<td style="font-family:var(--mono);font-size:12px">' + l.dateOut + '</td>' +
           '<td style="font-family:var(--mono);font-size:12px">' + (l.dateIn || '--') + '</td>' +
+          '<td style="color:var(--ink-mid);font-family:var(--mono);font-size:12px">' + (l.serial || '--') + '</td>' +
           '<td style="color:var(--ink-mid)">' + (l.location || '--') + '</td>' +
           '<td>' + (l.dateIn
             ? '<span class="badge in">Returned</span>'
@@ -666,7 +671,7 @@ function renderLogs() {
           '</tr>';
       }).join('');
       allEl.innerHTML = '<table><thead><tr>' +
-        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Date returned</th><th>Location</th><th>Status</th><th></th>' +
+        '<th>Equipment</th><th>Project</th><th>Deployed by</th><th>Date deployed</th><th>Date returned</th><th>Serial</th><th>Location</th><th>Status</th><th></th>' +
         '</tr></thead><tbody>' + allRows + '</tbody></table>';
     }
   }
@@ -700,6 +705,7 @@ function generateReport() {
     var entries = ls.map(function(l) {
       return '<div class="usage-entry">' +
         l.person + '  deployed: ' + l.dateOut + '  returned: ' + (l.dateIn || 'still in field') +
+          (l.serial ? '  serial: ' + l.serial : '') +
           (l.location ? '  location: ' + l.location : '') +
         '</div>';
     }).join('');
