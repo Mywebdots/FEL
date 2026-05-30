@@ -62,16 +62,9 @@ That's it. Nothing else.
 | **Storage bucket** | `ai-fel.firebasestorage.app` |
 | **Console URL** | https://console.firebase.google.com → select `ai-fel` |
 
-### API config (embedded in `index.html`)
+### API config
 
-```javascript
-apiKey: "AIzaSyAsPqMNnz2NpKcRTpcazMdHc3ewvfoCacI"
-authDomain: "ai-fel.firebaseapp.com"
-projectId: "ai-fel"
-storageBucket: "ai-fel.firebasestorage.app"
-messagingSenderId: "1015418417779"
-appId: "1:1015418417779:web:7f4c28305e5da220c97006"
-```
+The Firebase configuration is embedded directly in `index.html` and does not need to be changed. The API key is public by design (it's in client-side code) but is protected by Firestore security rules that require authentication.
 
 ### Firestore collections (tables)
 
