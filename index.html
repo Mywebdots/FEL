@@ -1090,10 +1090,6 @@ onAuthStateChanged(auth, function(user) {
     window._isAuthorized = true;
     window.hideLoginScreen();
 
-    // Seed empty collections
-    seedIfEmpty('equipmentTypes', ['Bat Detector','Camera Trap','Data Logger','GPS Unit','Audio Recorder','Trap','Mist Net']);
-    seedIfEmpty('fieldStaff', ['Anne Carey','Meredith Brainwood','Caroline','Eloise']);
-
     // Start Firestore listeners ONLY after auth is confirmed
     onSnapshot(query(collection(db,'equipmentTypes'), orderBy('createdAt','asc')), function(snap) {
       window._eqTypes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
@@ -1160,14 +1156,6 @@ function setConn(ok) {
   document.getElementById('conn-text').textContent = ok ? 'Live' : 'Offline';
 }
 
-async function seedIfEmpty(collName, items) {
-  var snap = await getDocs(collection(db, collName));
-  if (snap.empty) {
-    for (var i = 0; i < items.length; i++) {
-      await addDoc(collection(db, collName), {name: items[i], createdAt: serverTimestamp()});
-    }
-  }
-}
 </script>
 
 </body>
