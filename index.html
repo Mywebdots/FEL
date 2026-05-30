@@ -1074,7 +1074,7 @@ window._signOutUser = async function() {
   }
 };
 
-// Monitor auth state
+// Monitor auth state - initialize Firestore listeners ONLY after auth confirmed
 onAuthStateChanged(auth, function(user) {
   if (user) {
     var email = user.email;
@@ -1089,6 +1089,53 @@ onAuthStateChanged(auth, function(user) {
     window._currentUser = user;
     window._isAuthorized = true;
     window.hideLoginScreen();
+
+    // Seed empty collections
+    seedIfEmpty('equipmentTypes', ['Bat Detector','Camera Trap','Data Logger','GPS Unit','Audio Recorder','Trap','Mist Net']);
+    seedIfEmpty('fieldStaff', ['Anne Carey','Meredith Brainwood','Caroline','Eloise']);
+
+    // Start Firestore listeners ONLY after auth is confirmed
+    onSnapshot(query(collection(db,'equipmentTypes'), orderBy('createdAt','asc')), function(snap) {
+      window._eqTypes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      refreshTypeDropdown();
+      renderTypesChips();
+      setConn(true);
+    }, function(){ setConn(false); });
+
+    onSnapshot(query(collection(db,'fieldStaff'), orderBy('createdAt','asc')), function(snap) {
+      window._staff = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      refreshStaffDropdown();
+      renderStaffChips();
+    });
+
+    onSnapshot(query(collection(db,'equipment'), orderBy('createdAt','asc')), function(snap) {
+      window._equipment = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderEquipment();
+      refreshLogEquipSelect();
+    });
+
+    onSnapshot(query(collection(db,'projects'), orderBy('createdAt','asc')), function(snap) {
+      window._projects = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderProjects();
+      refreshProjSelect();
+      refreshLogProjSelect();
+      refreshReportSelect();
+    });
+
+    onSnapshot(query(collection(db,'logs'), orderBy('createdAt','asc')), function(snap) {
+      window._logs = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderEquipment();
+      renderLogs();
+      var sel = document.getElementById('report-proj');
+      if (sel && sel.value) generateReport();
+    });
+
+    onSnapshot(query(collection(db,'services'), orderBy('createdAt','asc')), function(snap) {
+      window._services = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      refreshServiceEqSelect();
+      loadServiceNotes();
+    });
+
   } else {
     window._currentUser = null;
     window._isAuthorized = false;
@@ -1121,49 +1168,6 @@ async function seedIfEmpty(collName, items) {
     }
   }
 }
-seedIfEmpty('equipmentTypes', ['Bat Detector','Camera Trap','Data Logger','GPS Unit','Audio Recorder','Trap','Mist Net']);
-seedIfEmpty('fieldStaff', ['Anne Carey','Meredith Brainwood','Caroline','Eloise']);
-
-onSnapshot(query(collection(db,'equipmentTypes'), orderBy('createdAt','asc')), function(snap) {
-  window._eqTypes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  refreshTypeDropdown();
-  renderTypesChips();
-  setConn(true);
-}, function(){ setConn(false); });
-
-onSnapshot(query(collection(db,'fieldStaff'), orderBy('createdAt','asc')), function(snap) {
-  window._staff = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  refreshStaffDropdown();
-  renderStaffChips();
-});
-
-onSnapshot(query(collection(db,'equipment'), orderBy('createdAt','asc')), function(snap) {
-  window._equipment = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  renderEquipment();
-  refreshLogEquipSelect();
-});
-
-onSnapshot(query(collection(db,'projects'), orderBy('createdAt','asc')), function(snap) {
-  window._projects = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  renderProjects();
-  refreshProjSelect();
-  refreshLogProjSelect();
-  refreshReportSelect();
-});
-
-onSnapshot(query(collection(db,'logs'), orderBy('createdAt','asc')), function(snap) {
-  window._logs = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  renderEquipment();
-  renderLogs();
-  var sel = document.getElementById('report-proj');
-  if (sel && sel.value) generateReport();
-});
-
-onSnapshot(query(collection(db,'services'), orderBy('createdAt','asc')), function(snap) {
-  window._services = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  refreshServiceEqSelect();
-  loadServiceNotes();
-});
 </script>
 
 </body>
