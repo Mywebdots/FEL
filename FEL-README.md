@@ -86,7 +86,7 @@ appId: "1:1015418417779:web:7f4c28305e5da220c97006"
 
 ### Security rules
 
-Firestore is protected by email-based access control. Only authorized users can read or write data:
+Firestore is protected by email-based access control. Only authenticated users with authorized emails can read or write data:
 
 ```
 rules_version = '2';
@@ -95,14 +95,16 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if request.auth != null 
         && request.auth.token.email in [
-          'mywebdots@gmail.com',
-          'acarey41@gmail.com',
-          'appliedecologynsw@gmail.com'
+          'user1@example.com',
+          'user2@example.com',
+          'user3@example.com'
         ];
     }
   }
 }
 ```
+
+Replace the email addresses with your actual authorized user emails (keep these private and out of version control).
 
 **To add or remove authorized users:**
 1. Firebase Console → project `ai-fel` → Firestore → Rules
@@ -110,7 +112,7 @@ service cloud.firestore {
 3. Click Publish
 
 **Important:** These rules require authentication. If you see permission errors, ensure:
-- Your Firestore rules are set correctly (above)
+- Your Firestore rules are set correctly with valid email addresses
 - You are signed in with an authorized email address
 - The Firestore listeners start ONLY after authentication is confirmed
 
@@ -265,15 +267,13 @@ Google must be enabled as a sign-in provider:
 
 ### Authorized users
 
-Edit the list of authorized emails in Firestore security rules:
-- Firebase Console → project `ai-fel` → Firestore → Rules
-- Update the email array in the `allow read, write:` rule
-- Click Publish
+To manage which email addresses can access the app:
+1. Firebase Console → project `ai-fel` → Firestore → Rules
+2. Edit the email array in the `allow read, write:` rule
+3. Add or remove email addresses as needed
+4. Click Publish
 
-Currently authorized:
-- `mywebdots@gmail.com`
-- `acarey41@gmail.com`
-- `appliedecologynsw@gmail.com`
+**Note:** Keep the authorized email list private. Do not share the list of authorized emails in public documentation or version control.
 
 ---
 
