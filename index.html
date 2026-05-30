@@ -113,9 +113,36 @@
     .tabs{padding:0 1rem}
     .app-header{padding:0 1rem}
   }
+
+  /* Login screen */
+  #login-screen{display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--green) 0%,var(--green-mid) 100%);z-index:9999;align-items:center;justify-content:center}
+  #login-screen.hidden{display:none}
+  .login-box{background:#fff;border-radius:var(--radius-lg);padding:3rem;max-width:360px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+  .login-title{font-size:24px;font-weight:600;color:var(--ink);margin-bottom:8px}
+  .login-sub{font-size:13px;color:var(--ink-mid);margin-bottom:2rem}
+  .login-button{background:var(--green);color:#fff;border:none;padding:12px 24px;font-size:16px;font-weight:600;border-radius:var(--radius);cursor:pointer;width:100%;margin-bottom:1rem;transition:background 0.15s}
+  .login-button:hover{background:var(--green-mid)}
+  .login-error{background:var(--red-lt);border:1px solid var(--red);color:var(--red);padding:12px;border-radius:var(--radius);margin-bottom:1rem;font-size:13px}
+  .login-loading{text-align:center;color:var(--ink-mid);font-size:13px;margin:1rem 0}
+  .login-hidden{display:none}
+
+  /* Hide app when not authorized */
+  body.not-authorized .app-header{display:none}
+  body.not-authorized .tabs{display:none}
+  body.not-authorized .main{display:none}
 </style>
 </head>
 <body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">Field Equipment Log</div>
+    <div class="login-sub">Sign in to continue</div>
+    <div id="login-error" class="login-error login-hidden"></div>
+    <button class="login-button" id="google-signin-btn" onclick="signInWithGoogle()">Sign in with Google</button>
+    <div id="login-loading" class="login-loading login-hidden">Signing in...</div>
+  </div>
+</div>
 
 <header class="app-header">
   <div class="brand">
@@ -128,6 +155,7 @@
   <div style="display:flex;align-items:center;gap:12px">
     <button class="btn" id="export-btn" onclick="exportAllData()" style="background:#f0faf5;color:#1a6e50;border-color:#d6f0e5;font-weight:500">Export data</button>
     <div id="conn-status"><span class="dot" id="dot"></span><span id="conn-text">Connecting...</span></div>
+    <button class="btn" id="signout-btn" onclick="signOutUser()" style="background:#f0faf5;color:#1a6e50;border-color:#d6f0e5;font-weight:500">Sign out</button>
   </div>
 </header>
 
@@ -339,10 +367,54 @@ var _logsNewestFirst = true;
 // Edit state for service notes
 var _editingServiceId = null;
 
+// Auth state
+var _currentUser = null;
+var _isAuthorized = false;
+
 // Firebase stubs - replaced by module once connected
 var _fbAddDoc    = function(){ alert('Still connecting to database...'); };
 var _fbDeleteDoc = function(){ alert('Still connecting to database...'); };
 var _fbUpdateDoc = function(){ alert('Still connecting to database...'); };
+
+// Auth functions (100% ASCII)
+function signInWithGoogle() {
+  var btn = document.getElementById('google-signin-btn');
+  var loading = document.getElementById('login-loading');
+  btn.style.display = 'none';
+  loading.classList.remove('login-hidden');
+  window._signInWithGoogle();
+}
+
+function signOutUser() {
+  if (!confirm('Sign out?')) return;
+  window._signOutUser();
+}
+
+function showAuthError(msg) {
+  var errorEl = document.getElementById('login-error');
+  var btn = document.getElementById('google-signin-btn');
+  var loading = document.getElementById('login-loading');
+  errorEl.textContent = msg;
+  errorEl.classList.remove('login-hidden');
+  btn.style.display = 'block';
+  loading.classList.add('login-hidden');
+}
+
+function hideLoginScreen() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.body.classList.remove('not-authorized');
+}
+
+function showLoginScreen() {
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.body.classList.add('not-authorized');
+  var errorEl = document.getElementById('login-error');
+  var btn = document.getElementById('google-signin-btn');
+  var loading = document.getElementById('login-loading');
+  errorEl.classList.add('login-hidden');
+  btn.style.display = 'block';
+  loading.classList.add('login-hidden');
+}
 
 // --- Tab switching ---
 function showTab(t) {
@@ -925,6 +997,8 @@ function exportAllData() {
 }
 
 // --- Init ---
+document.body.classList.add('not-authorized');
+showLoginScreen();
 var todayDate = new Date().toISOString().slice(0, 10);
 document.getElementById('log-date-out').value = todayDate;
 document.getElementById('service-date').value = todayDate;
@@ -941,6 +1015,8 @@ renderLogs();
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
          query, orderBy, onSnapshot, serverTimestamp, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -956,6 +1032,69 @@ var firebaseConfig = {
 
 var app = initializeApp(firebaseConfig);
 var db  = getFirestore(app);
+var auth = getAuth(app);
+
+var allowedEmails = [
+  'mywebdots@gmail.com',
+  'acarey41@gmail.com',
+  'appliedecologynsw@gmail.com'
+];
+
+// Auth functions
+window._signInWithGoogle = async function() {
+  try {
+    var provider = new GoogleAuthProvider();
+    var result = await signInWithPopup(auth, provider);
+    var email = result.user.email;
+    if (allowedEmails.indexOf(email) === -1) {
+      await signOut(auth);
+      window.showAuthError('Access denied. Your email is not authorized.');
+      return;
+    }
+    window._currentUser = result.user;
+    window._isAuthorized = true;
+  } catch (error) {
+    console.error('Sign-in error:', error);
+    if (error.code === 'auth/popup-closed-by-user') {
+      window.showAuthError('Sign-in cancelled.');
+    } else {
+      window.showAuthError('Sign-in failed. Please try again.');
+    }
+  }
+};
+
+window._signOutUser = async function() {
+  try {
+    await signOut(auth);
+    window._currentUser = null;
+    window._isAuthorized = false;
+  } catch (error) {
+    console.error('Sign-out error:', error);
+    alert('Sign-out failed: ' + error.message);
+  }
+};
+
+// Monitor auth state
+onAuthStateChanged(auth, function(user) {
+  if (user) {
+    var email = user.email;
+    if (allowedEmails.indexOf(email) === -1) {
+      signOut(auth);
+      window._currentUser = null;
+      window._isAuthorized = false;
+      window.showLoginScreen();
+      window.showAuthError('Access denied. Your email is not authorized.');
+      return;
+    }
+    window._currentUser = user;
+    window._isAuthorized = true;
+    window.hideLoginScreen();
+  } else {
+    window._currentUser = null;
+    window._isAuthorized = false;
+    window.showLoginScreen();
+  }
+});
 
 window._fbAddDoc = async function(collName, data, callback) {
   data.createdAt = serverTimestamp();
