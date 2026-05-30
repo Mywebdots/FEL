@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --green:#1a6e50;--green-mid:#2a9d6e;--green-lt:#d6f0e5;--green-bg:#f0faf5;
@@ -947,53 +948,46 @@ function deleteServiceNote(id) {
 }
 
 // --- Export ---
-function downloadCSV(filename, data) {
-  var csv = data.join('\n');
-  var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  var link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-}
-
 function exportAllData() {
   var timestamp = new Date().toISOString().slice(0, 10);
+  var wb = XLSX.utils.book_new();
 
-  // Equipment CSV
-  var eqHeader = 'Type,Name,Serial,Notes';
-  var eqRows = _equipment.map(function(e) {
-    return '"' + (e.type || '') + '","' + (e.name || '') + '","' + (e.serial || '') + '","' + (e.notes || '').replace(/"/g, '""') + '"';
-  });
-  downloadCSV('FEL_Equipment_' + timestamp + '.csv', [eqHeader].concat(eqRows));
+  // Equipment sheet
+  var eqData = [['Type', 'Name', 'Serial', 'Notes']].concat(_equipment.map(function(e) {
+    return [(e.type || ''), (e.name || ''), (e.serial || ''), (e.notes || '')];
+  }));
+  var eqSheet = XLSX.utils.aoa_to_sheet(eqData);
+  XLSX.utils.book_append_sheet(wb, eqSheet, 'Equipment');
 
-  // Projects CSV
-  var projHeader = 'Project,Owner,Description';
-  var projRows = _projects.map(function(p) {
-    return '"' + (p.name || '') + '","' + (p.owner || '') + '","' + (p.desc || '').replace(/"/g, '""') + '"';
-  });
-  downloadCSV('FEL_Projects_' + timestamp + '.csv', [projHeader].concat(projRows));
+  // Projects sheet
+  var projData = [['Project', 'Owner', 'Description']].concat(_projects.map(function(p) {
+    return [(p.name || ''), (p.owner || ''), (p.desc || '')];
+  }));
+  var projSheet = XLSX.utils.aoa_to_sheet(projData);
+  XLSX.utils.book_append_sheet(wb, projSheet, 'Projects');
 
-  // Logs CSV
-  var logHeader = 'Equipment,Project,Deployed by,Date deployed,Date returned,Location,Serial,Status';
-  var logRows = _logs.slice().reverse().map(function(l) {
+  // Logs sheet
+  var logData = [['Equipment', 'Project', 'Deployed by', 'Date deployed', 'Date returned', 'Location', 'Serial', 'Status']].concat(_logs.slice().reverse().map(function(l) {
     var eq = _equipment.find(function(e){ return e.id === l.eqId; });
     var proj = _projects.find(function(p){ return p.id === l.projId; });
     var eqLabel = eq ? (eq.type || '') + ' - ' + (eq.name || '') : 'Unknown';
     var status = l.dateIn ? 'Returned' : 'In field';
-    return '"' + eqLabel + '","' + (proj ? proj.name : 'Unknown') + '","' + (l.person || '') + '","' + (l.dateOut || '') + '","' + (l.dateIn || '') + '","' + (l.location || '').replace(/"/g, '""') + '","' + (l.serial || '') + '","' + status + '"';
-  });
-  downloadCSV('FEL_Logs_' + timestamp + '.csv', [logHeader].concat(logRows));
+    return [eqLabel, (proj ? proj.name : 'Unknown'), (l.person || ''), (l.dateOut || ''), (l.dateIn || ''), (l.location || ''), (l.serial || ''), status];
+  }));
+  var logSheet = XLSX.utils.aoa_to_sheet(logData);
+  XLSX.utils.book_append_sheet(wb, logSheet, 'Logs');
 
-  // Services CSV
-  var svcHeader = 'Equipment,Service date,Service notes';
-  var svcRows = _services.slice().reverse().map(function(s) {
+  // Services sheet
+  var svcData = [['Equipment', 'Service date', 'Service notes']].concat(_services.slice().reverse().map(function(s) {
     var eq = _equipment.find(function(e){ return e.id === s.eqId; });
     var eqLabel = eq ? (eq.type || '') + ' - ' + (eq.name || '') : 'Unknown';
-    return '"' + eqLabel + '","' + (s.date || '') + '","' + (s.note || '').replace(/"/g, '""') + '"';
-  });
-  downloadCSV('FEL_Services_' + timestamp + '.csv', [svcHeader].concat(svcRows));
+    return [eqLabel, (s.date || ''), (s.note || '')];
+  }));
+  var svcSheet = XLSX.utils.aoa_to_sheet(svcData);
+  XLSX.utils.book_append_sheet(wb, svcSheet, 'Services');
 
-  alert('Downloaded 4 CSV files: Equipment, Projects, Logs, and Services');
+  // Download as single Excel file
+  XLSX.writeFile(wb, 'FEL_Export_' + timestamp + '.xlsx');
 }
 
 // --- Init ---
